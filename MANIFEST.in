@@ -3,6 +3,7 @@ recursive-include zix/default_project .zixignore
 include zix/default_project/requirements*.txt
 include zix/default_project/env.yml
 recursive-include zix/default_project/bin *
+include zix/default_project/alembic.ini
 recursive-include zix/default_project/alembic *
 recursive-include zix/default_project/bstudio *
 recursive-include zix/default_project/static/assets *
