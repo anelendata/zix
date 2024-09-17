@@ -6,6 +6,7 @@ WORKER_DOMAIN="worker.example.com"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 FRONTEND_ROOT=$SCRIPT_DIR"/../static/"
 
+mkdir -p $FRONTEND_ROOT/compiled/assets/js
 rm $FRONTEND_ROOT/compiled/assets/js/*
 cp $FRONTEND_ROOT/assets/js/*.js $FRONTEND_ROOT/compiled/assets/js/
 cp $FRONTEND_ROOT/assets/min_js/*.js $FRONTEND_ROOT/compiled/assets/js/
