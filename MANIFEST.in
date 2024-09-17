@@ -7,8 +7,10 @@ include zix/default_project/alembic.ini
 recursive-include zix/default_project/alembic *
 recursive-include zix/default_project/bstudio *
 recursive-include zix/default_project/static/assets *
-include zix/default_project/static/compiled/index.html
-recursive-include zix/default_project/static/compiled .zixkeep
+recursive-include zix/default_project/static/compiled/bootstrap *
+recursive-include zix/default_project/static/compiled/css *
+recursive-include zix/default_project/static/compiled/fonts *
+recursive-include zix/default_project/static/compiled/img *
 recursive-exclude zix *.py[cod]
 recursive-exclude zix .env
 recursive-exclude zix .secret
