@@ -60,7 +60,7 @@ async def callback(
     user = users_crud.get_user_by_email(db, email)
     # User not found. Redirect to home page
     if not user:
-        if email != config.ADMIN_EMAIL:
+        if config.INVITATION_ONLY and email != config.ADMIN_EMAIL:
             invitation = users_crud.get_invitations_by_email(db, email).first()
             if not invitation:
                 return RedirectResponse(url="/?message=Sorry, invitation only.&success=false")
@@ -71,6 +71,15 @@ async def callback(
                 sendgrid.add_onboarding_email_subscriber(email)
             except Exception as e:
                 logger.error("Sendgrid Error: " + str(e))
+
+    auth0_user_id = userinfo.get("sub", "").lower()
+    if user.auth_app_user_uid:
+        if user.auth_app_user_uid.lower() != auth0_user_id:
+            return RedirectResponse(url=f"/?message=You used a different login method (Google vs. Email) before. Please try the one you used before. Please contact support@omnicreator.club if you have quesitions.")
+    else:
+        user.auth_app_user_uid = auth0_user_id
+        db.add(user)
+        db.commit()
 
     if not userinfo["email_verified"]:
         return RedirectResponse(url="/?message=Check your inbox/spam folder<br>to verify your email<br>and try again.&success=false")

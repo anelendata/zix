@@ -5,10 +5,16 @@ from zix.server.utils import is_plugin_active
 API_VERSION = "1"
 API_PATH = "/api/v" + API_VERSION
 
+INVITATION_ONLY = False
+USE_AUTH0 = True
+USE_PAYMENTS = False
+
 DEFAULT_FEATURE_NAME = "core"
 TRIAL_PAYMENT_PLAN = "core-trial"
 TRIAL_PAYMENT_PLAN_DESCRIPTION = "Free trial"
 FREE_TRIAL_DEFAULT_DAYS = 7
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 ADMIN_ACCOUNT_HANDLE = os.environ.get("ADMIN_ACCOUNT_HANDLE")
@@ -18,13 +24,9 @@ STATIC_DIR = os.path.join(CODE_DIR, "../static/compiled")
 FRONTEND_DIR = os.path.join(CODE_DIR, "../static/compiled")
 SERVER_DIR = os.path.join(CODE_DIR, "../server")
 
-STATIC_HTTP_DOMAIN = os.getenv("STATIC_HTTP_DOMAIN")
+STATIC_HTTP_DOMAIN = os.getenv("STATIC_HTTP_DOMAIN", "")
+
 SECRET_KEY = os.getenv("SECRET_KEY", "#DEFINE_ME_IN_ENV_YAML_FILE!")
-
-USE_AUTH0 = True
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
-
-USE_PAYMENTS = True
 
 SENDGRID_KEY = os.environ.get("SENDGRID_KEY")
 
@@ -72,7 +74,7 @@ WEB_MANIFEST = {
     #         "icons": [{ "src": "/images/shortcut.png", "sizes": "192x192" }]
     #    }
     ],
-    "description": "My first app with Pluggable.codes",
+    "description": "My first app with zix",
     "screenshots": [
         {
             "src": f"{STATIC_HTTP_DOMAIN}/assets/img/app-screen.jpg",

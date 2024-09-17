@@ -32,14 +32,44 @@ pip install zixweb
 
 ```
 zix init -w myapp
+cd myapp
+pip install -r requirement.txt
+pip install -r requirement_dev.txt
 ```
+
+requirement.txt contains the modules required for running the app.
+requirement_dev.txt contains the modules required for developing the app.
 
 The rest of the document assumes your project is in `myapp` directory.
 
-## Run app
+## Create tables
+
+By default, it will run Sqlite and creates zix.db file in the project root directory.
 
 ```
-zix -w myapp -h 0.0.0.0 -p 4000 serve
+alembic revision --autogenerate -m "initial models"
+alembic upgrade head
+```
+
+## Set up env.yml file
+
+Open .env/env.yml at the root project directory.
+
+To use Auth0 login, sign up (should be free) at https://auth0.com
+
+To try the test app,
+1. Go to Applications from the left menu and select Default App.
+2. Copy and Domain, Client ID and Client Secret and paste them into env.yml file into the corresponding fields.
+3. Set Application Type to "Regular Web Application."
+4. Enter "http://localhost:4000" to Allowed Callback URLs, Allowed Logout URLs, and Allowed Web Origins
+5. Click Save
+
+## Run app
+
+Go to the project root directory and run:
+
+```
+zix -w . -p 4000 -e .env/env.yml serve
 ```
 
 Point browser to `http://localhost:4000`

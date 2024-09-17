@@ -68,8 +68,13 @@ class User(Base):
     __tablename__ = "user"
 
     email = Column(EmailType, unique=True, index=True)
+
     # hashed_password is not stored currently as we do authentication via auth0
     # hashed_password = Column(String)
+
+    # Avoid the user to login using different methods (e.g. Google vs. email/password)
+    auth_app_user_uid = Column(String)
+
     is_staff = Column(Boolean, default=False)
     activated_at = Column(DateTime, default=None)
     deactivated_at = Column(DateTime, default=None)
