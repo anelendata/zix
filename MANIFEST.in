@@ -7,6 +7,7 @@ include zix/default_project/alembic.ini
 recursive-include zix/default_project/alembic *
 recursive-include zix/default_project/bstudio *
 recursive-include zix/default_project/static/assets *
+recursive-include zix/default_project/static/compiled *.html
 recursive-include zix/default_project/static/compiled/assets/bootstrap *
 recursive-include zix/default_project/static/compiled/assets/css *
 recursive-include zix/default_project/static/compiled/assets/fonts *
