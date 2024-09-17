@@ -219,7 +219,8 @@ let AppView = $.fn.AppView = (function() {
     };
 
     let _setUICallBacks = function() {
-        $('#login-button').on('click', App.login);
+        $('#auth0-login-button').on('click', App.login);
+        $('#auth0-logout-button').on('click', App.logout);
         $('#message-modal-button').on('click', function() {
             _hideModal('#message-modal');
         });
@@ -332,10 +333,15 @@ let AppView = $.fn.AppView = (function() {
         $('.active-account-full-name').text(firstName + ' ' + lastName);
     };
     let _onLoginStatusChange = function(value) {
+        $('#auth0-login-button').show();
+        $('#auth0-logout-button').hide();
+        if (!value) return;
         if (value.status === 'true') {
             _showAlert(value.message, 'success', '#login-alert');
         } else {
             _showAlert(value.message, 'danger', '#login-alert', false, -1);
+            $('#auth0-login-button').hide();
+            $('#auth0-logout-button').show();
         }
     };
 
@@ -410,6 +416,10 @@ let AppView = $.fn.AppView = (function() {
     };
 
     let _onNotificationChange = function(value) {
+        if (!value) {
+            $('.notification-alert').hide();
+            return;
+        }
         let notifications = JSON.parse(value);
         if (notifications == null) return;
         let lastCheck = notifications.last_check;
