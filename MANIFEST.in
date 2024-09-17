@@ -2,6 +2,7 @@ recursive-include zix *.py
 recursive-exclude zix *.py[cod]
 recursive-include zix/default_project .zixignore
 recursive-include zix/default_project requirements.txt
+recursive-include zix/default_project env.yml
 recursive-include zix/default_project/bin *
 recursive-include zix/default_project/bstudio *
 recursive-include zix/default_project/static/assets *

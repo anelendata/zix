@@ -53,6 +53,13 @@ alembic upgrade head
 
 ## Set up env.yml file
 
+From the project root, do:
+
+```
+mkdir .env
+cp env.yml .env
+```
+
 Open .env/env.yml at the root project directory.
 
 To use Auth0 login, sign up (should be free) at https://auth0.com
