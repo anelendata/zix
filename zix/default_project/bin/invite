@@ -1,0 +1,35 @@
+from datetime import datetime
+import sys
+import uuid
+import people_reach
+
+if len(sys.argv) < 3:
+    print("python invite <invitation_code> <invitee_email>")
+    exit(1)
+
+people_reach._define_env_vars_from_yaml(".secrets/env.yml")
+
+from people_reach.backend import database, crud, models
+from people_reach.backend.apps.linkedin import LinkedIn
+from sqlalchemy.orm import Session
+from people_reach.backend.routers.people_reach import get_linkedin_by_account
+
+
+engine = database.engine
+db = Session(engine)
+
+invitation_code = sys.argv[1]
+email= sys.argv[2]
+
+account_name = "daigotanaka"
+account = crud.get_account_by_name(db, account_name)
+current_user = account.user
+invitation_code_obj = crud.get_invitation_code(db, invitation_code)
+invitation = crud.get_or_create_invitation(
+    db,
+    email.strip(),
+    current_user,
+    invitation_code=invitation_code_obj,
+)
+
+print(invitation)

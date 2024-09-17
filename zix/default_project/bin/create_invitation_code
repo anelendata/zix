@@ -1,0 +1,61 @@
+from datetime import datetime
+import sys
+import uuid
+from zix.server import database, utils
+
+if len(sys.argv) < 3:
+    print("python create_invitation_code <invitor account name> <code_prefix> <expire_at: 20yy-mm-dd or never> <use uuid yes/no>")
+    exit(1)
+
+utils.define_env_vars_from_yaml(".env/env.yml", stage="local")
+
+
+def get_engine():
+    global engine
+    if engine:
+        return engine
+
+    yml = config.get_main_option("zix.env_yml")
+    if os.path.isfile(yml):
+        utils.define_env_vars_from_yaml(yml, stage=stage)
+    zix_config = utils.dynamic_import(CURRENT_DIR, "config")
+
+    engine = database.get_engine(
+        zix_config.DATABASE_URL,
+        zix_config.DB_CONNECT_ARGS,
+        zix_config.DB_ENGINE_KWARGS,
+        )
+    return engine
+
+
+from zix.server import database, crud, models
+from sqlalchemy.orm import Session
+
+engine = get_engine()
+db = database.get_db()
+
+inviter_account_name = sys.argv[1]
+code_prefix = sys.argv[2]
+
+datetime_str = sys.argv[3]
+expire_at = None
+if datetime_str.lower() not in ["no", "false", "never"]:
+    expire_at = datetime.strptime(datetime_str, '%Y-%m-%d')
+
+code = code_prefix
+if sys.argv[4].lower() not in ["no", "false"]:
+    code = code + "-" + uuid.uuid4().hex[0:4]
+
+owner = crud.get_account_by_name(db, inviter_account_name).user
+payment_plan = None
+
+invitation_code = models.InvitationCode(
+    code=code,
+    owner=owner,
+    payment_plan=payment_plan,
+    invitation_expire_sec=None,
+    code_expire_at=expire_at,
+)
+db.add(invitation_code)
+db.commit()
+print(f"created code {code}\nExpiration: {str(expire_at)}")

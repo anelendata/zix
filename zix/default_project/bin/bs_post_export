@@ -1,0 +1,60 @@
+#!/bin/bash
+
+STATIC_HTTP_DOMAIN="static.example.com"
+WORKER_DOMAIN="worker.example.com"
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+FRONTEND_ROOT=$SCRIPT_DIR"/../static/"
+
+rm $FRONTEND_ROOT/compiled/assets/js/*
+cp $FRONTEND_ROOT/assets/js/*.js $FRONTEND_ROOT/compiled/assets/js/
+cp $FRONTEND_ROOT/assets/min_js/*.js $FRONTEND_ROOT/compiled/assets/js/
+
+# admin
+mkdir -p $FRONTEND_ROOT/compiled/assets/admin
+rm -fr $FRONTEND_ROOT/compiled/assets/admin/*
+cp -r $FRONTEND_ROOT/assets/admin/* $FRONTEND_ROOT/compiled/assets/admin/
+
+
+# Don't do this as css is most likely newer in Bootstrap Studio
+# cp $FRONTEND_ROOT/assets/css/*.css $FRONTEND_ROOT/compiled/assets/css/
+
+echo ";var WorkerApiPath = '/api/v1';" >> $FRONTEND_ROOT/compiled/assets/js/properties.js
+# echo ";var WorkerApiPath = 'https://${WORKER_DOMAIN}/api/v1';" >> $FRONTEND_ROOT/compiled/assets/js/properties.js
+
+echo Minifying the following files:
+JS_FILES=''
+for i in `ls $FRONTEND_ROOT/assets/js`; do JS_FILES+=" $FRONTEND_ROOT/assets/js/$i"; echo $i; done
+uglifyjs $JS_FILES  --compress  > $FRONTEND_ROOT/compiled/assets/js/app.min.js
+echo ";var WorkerApiPath = 'https://${WORKER_DOMAIN}/api/v1';" >> $FRONTEND_ROOT/compiled/assets/js/app.min.js
+
+echo Also minifying...
+JS_FILES=''
+for i in `ls $FRONTEND_ROOT/assets/admin/js`; do JS_FILES+=" $FRONTEND_ROOT/assets/admin/js/$i"; echo $i; done
+uglifyjs $JS_FILES  --compress  > $FRONTEND_ROOT/compiled/assets/admin/js/app.min.js
+
+
+pushd $FRONTEND_ROOT/compiled
+cat index.html \
+    | sed 's/^\(.*script.*\.js.*\)$/__del__\1/g' \
+    | sed 's/^__del__\(.*script.*min\.js.*\)$/\1/g' \
+    | sed 's/^__del__.*$//g' \
+    | grep -v "</body>" | grep -v "</html>" \
+    > stage_index.html
+echo '<script src="assets/js/app.min.js?t='`date +%s`'"></script></body></html>' >> stage_index.html
+cat stage_index.html \
+    | sed 's/assets/https:\/\/'$STATIC_HTTP_DOMAIN'\/assets/g' \
+    > prod_index.html
+
+cat admin.html \
+    | sed 's/^\(.*script.*\.js.*\)$/__del__\1/g' \
+    | sed 's/^__del__\(.*script.*min\.js.*\)$/\1/g' \
+    | sed 's/^__del__.*$//g' \
+    | grep -v "</body>" | grep -v "</html>" \
+    > stage_admin.html
+echo '<script src="assets/js/app.min.js?t='`date +%s`'"></script>\n<script src="assets/admin/js/app.min.js?t='`date +%s`'"></script></body></html>' >> stage_admin.html
+cat stage_admin.html \
+    | sed 's/assets/https:\/\/'$STATIC_HTTP_DOMAIN'\/assets/g' \
+    > prod_admin.html
+
+popd

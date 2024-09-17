@@ -1,0 +1,11 @@
+recursive-include zix *.py
+recursive-exclude zix *.py[cod]
+recursive-include zix/default_project .zixignore
+recursive-include zix/default_project requirements.txt
+recursive-include zix/default_project/bin *
+recursive-include zix/default_project/bstudio *
+recursive-include zix/default_project/static/assets *
+recursive-include zix/default_project/static/compiled index.html
+recursive-include zix/default_project/static/compiled .zixkeep
+recursive-exclude zix .env
+recursive-exclude zix .secret

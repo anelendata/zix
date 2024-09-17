@@ -1,0 +1,2 @@
+bin/bs_post_export;
+zix -w . -p 4000 -e .env/env.yml  serve # --stage ${1:-local} --database ${2:-local}
