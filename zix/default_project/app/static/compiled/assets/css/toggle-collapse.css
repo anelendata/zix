@@ -1,0 +1,45 @@
+/* Taken from https://levelup.gitconnected.com/collapsible-sections-with-or-without-javascript-3fd871955a9d */
+
+.toggle_collapse {
+  display: block;
+}
+
+.toggle_collapse, .toggle_collapse + * .collapseAfter ~ * {
+  position: absolute;
+  top: -999em;
+  left: -999em;
+}
+
+.toggle_collapse:checked + * .collapseAfter ~ * {
+  position: static;
+}
+
+.toggle_collapse + * + label {
+  display: inline-block !important;
+  color: var(--gray);
+  z-index: 1000;
+  position: absolute;
+  bottom: -10px;
+  right: 0px;
+}
+
+.toggle_collapse + * + label:before {
+  content: "...See more";
+}
+
+.toggle_collapse:checked + * + label:before {
+  content: "...See less";
+}
+
+.toggle_collapse + * + label:after {
+  /*content: "\25BC";*/
+  /*display: inline-block;*/
+  /*padding: 0.4em 0 0 0.3em;*/
+  /*vertical-align: top;*/
+  /*font-size: 0.625em;*/
+}
+
+.toggle_collapse:checked + * + label:after {
+  /*content: "\25B2";*/
+}
+

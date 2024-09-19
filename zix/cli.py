@@ -120,4 +120,5 @@ def init_project(working_dir:str="."):
         print("bye!")
         return
     shutil.copytree(os.path.join(CODE_DIR, "default_project"), working_dir)
+    shutil.copytree(os.path.join(CODE_DIR, "server"), os.path.join(working_dir, "app", "server"))
     LOGGER.info("Default project files created.")

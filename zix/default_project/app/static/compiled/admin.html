@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>MyApp</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css?h=d44328cee87c2b405213893ba35eaf78">
+    <link rel="manifest" href="manifest.json?h=7beb2919ca50b8af7ba709d4cb937520" crossorigin="use-credentials">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css?h=72206c8bac47c259a95e6473d0eef779">
+    <link rel="stylesheet" href="assets/css/app.css?h=fdfa7db50223caaf8f445e182e519e78">
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css?h=6113766536c49aea6a48f03939df543a">
+    <link rel="stylesheet" href="assets/css/sidebar.css?h=66fe5d43c32715dcca2b59d1c2f27802">
+    <link rel="stylesheet" href="assets/css/toggle-collapse.css?h=a480ffe00c3239f3c1a9456f36e51058">
+</head>
+
+<body style="height: 500px;">
+    <ul class="nav flex-column shadow d-flex sidebar mobile-hid" id="sidebar">
+        <li class="nav-item logo-holder" id="logo-holder"><a class="nav-link text-white float-right" id="sidebarToggleHolder" href="#" style="opacity: 1;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-32 0 512 512" width="1em" height="1em" fill="currentColor" id="sidebarToggle">
+                    <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. -->
+                    <path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"></path>
+                </svg></a>
+            <div class="text-center text-white logo py-4 mx-4"></div>
+        </li>
+        <li class="nav-item"><a class="nav-link text-left text-white py-1 px-0" id="stats-link" href="#" onclick="goToSection(&#39;stats&#39;)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor" class="mx-3">
+                    <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. -->
+                    <path d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"></path>
+                </svg><span class="text-nowrap mx-2">Admin</span></a></li>
+        <li class="nav-item"></li>
+        <li class="nav-item"></li>
+        <li class="nav-item"></li>
+        <li class="nav-item"></li>
+        <li class="nav-item" id="ai-chat-button-nav-item"></li>
+    </ul>
+    <div class="container text-truncate" id="main-content">
+        <div id="alert" style="max-width: 500px;"></div>
+        <nav class="navbar navbar-light navbar-expand shadow mb-4 topbar static-top" id="top-menu" style="position: fixed;top: 0px;left: 0px;z-index: 500;padding-left: 15px;">
+            <div class="container-fluid">
+                <div id="mobile-sidebar-button" onclick="expandSidebar()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-32 0 512 512" width="1em" height="1em" fill="currentColor" style="font-size: 20px;color: var(--app-secondary-font-color);opacity: 0;">
+                        <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. -->
+                        <path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"></path>
+                    </svg></div>
+                <div class="table-responsive" id="horizontal-nav" style="border-style: none;overflow: visible;">
+                    <table class="table">
+                        <thead style="border-style: none;">
+                            <tr style="border-style: none;">
+                                <th style="border-width: 0px;padding: 0;">
+                                    <div class="dropdown"><a class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown" id="account-id-dropdown" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -64 640 640" width="1em" height="1em" fill="currentColor">
+                                                <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. -->
+                                                <path d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z"></path>
+                                            </svg><span>&nbsp;Account&nbsp;</span></a>
+                                        <div class="dropdown-menu" id="accounts"><a class="dropdown-item" href="#" onclick="setOrganizationID(&#39;personal&#39;)"><strong>Personal</strong></a>
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" href="#" onclick="setOrganizationID(&#39;personal&#39;)"><strong>Organization</strong></a>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th style="border-width: 0px;padding: 0;">
+                                    <div class="dropdown"><a class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown" id="campaign-id-dropdown" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor">
+                                                <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. -->
+                                                <path d="M176 56V96H336V56c0-4.4-3.6-8-8-8H184c-4.4 0-8 3.6-8 8zM128 96V56c0-30.9 25.1-56 56-56H328c30.9 0 56 25.1 56 56V96v32V480H128V128 96zM64 96H96V480H64c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64zM448 480H416V96h32c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64z"></path>
+                                            </svg><span>&nbsp;Campaign&nbsp;</span></a>
+                                        <div class="dropdown-menu" id="campaigns"><a class="dropdown-item" href="#">default</a></div>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody style="border-style: none;">
+                            <tr style="border-style: none;">
+                                <td style="border-width: 0px;padding: 0;"><span id="account-id"></span></td>
+                                <td style="border-width: 0px;padding: 0;"><span id="campaign-id">default</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <ul class="navbar-nav flex-nowrap ml-auto">
+                    <div class="d-none d-sm-block topbar-divider"></div>
+                    <li class="nav-item dropdown no-arrow">
+                        <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"><img id="profile-image" src="noun-power-1226972-C462DD.png" style="border-radius: 50%;"><span class="d-none d-lg-inline mr-2 text-gray-600 small"></span></a>
+                            <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" id="user-menu"><a class="dropdown-item" id="login" href="#" onclick="showModal(&#39;login-modal&#39;)"><i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Login</a></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div id="content-body">
+            <div>
+                <div class="row">
+                    <div class="col">
+                        <h3><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor" class="mx-3">
+                                <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. -->
+                                <path d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"></path>
+                            </svg>&nbsp;Admin</h3>
+                    </div>
+                    <div class="col">
+                        <div class="input-group"><input class="form-control" type="text" id="searchField" placeholder="Search"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 offset-lg-0 mb-4" style="min-height: 200px;">
+                        <div class="card shadow mb-4" style="width: 98%;">
+                            <div class="card-header py-3" style="color: rgb(133, 135, 150);background: rgb(248, 249, 252);">
+                                <h4>Signups</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="signups"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 offset-lg-0 mb-4" style="min-height: 200px;">
+                        <div class="card shadow mb-4" style="width: 98%;">
+                            <div class="card-header py-3" style="color: rgb(133, 135, 150);background: rgb(248, 249, 252);">
+                                <h4>Retention</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="retention" class="kk"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 offset-lg-0 mb-4" style="min-height: 200px;">
+                        <div class="card shadow mb-4" style="width: 98%;">
+                            <div class="card-header py-3" style="color: rgb(133, 135, 150);background: rgb(248, 249, 252);">
+                                <h4>Subscriptions</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="subscribers"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" role="dialog" tabindex="-1" id="login-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="text-center login-card">
+                            <div id="login-alert"></div><img class="profile-img-card" src="omni-creator-nebula-logo.png" style="background: #FFF;">
+                            <p>Please sign in to continue</p><a class="btn btn-primary" role="button" href="#" onclick="authenticate()" style="background: #C462DD;margin-bottom: 20px;color: #FFF !important;border-style: none;">Sign in with Auth0</a>
+                            <hr>
+                            <p>By signing on, you are agreeing to<br><a href="https://omnicreator.club/terms.html">terms of use</a>&nbsp;and <a href="https://omnicreator.club/privacy-policy.html">privacy policy</a>.</p>
+                            <p>Problem?<br>Email <a href="mailto:support@omnicreator.club" target="_blank">support@omnicreator.club</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" role="dialog" tabindex="-1" id="new-org-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Coming soon!</h4><button class="close" type="button" aria-label="Close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body" style="padding-right: 32px;padding-left: 32px;">
+                        <div>
+                            <p>Organization features let you post on<br>behalf of employees.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" role="dialog" tabindex="-1" id="message-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="border-width: 0px;">
+                        <h4 class="modal-title" id="message-modal-header-text">Modal Title</h4><button class="close" type="button" aria-label="Close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="message-modal-body-content"></div>
+                    </div>
+                    <div class="modal-footer" style="border-width: 0px;"><button class="btn btn-primary" id="message-modal-button" type="button"><span id="message-modal-button-label">Close</span></button></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" role="dialog" tabindex="-1" id="linkedin-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="border: none;">
+                        <h4 class="modal-title" id="message-modal-header-text-1" style="color: var(--primary-link-color);">Welcome!</h4><button class="close" type="button" aria-label="Close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body" id="message-modal-body-1" style="padding-right: 32px;padding-left: 32px;">
+                        <div id="message-modal-body-content-1">
+                            <p></p>
+                        </div>
+                        <div class="text-center login-card">
+                            <div id="login-alert-1"></div><img class="profile-img-card" src="linkedin.jpeg" style="background: #FFF;">
+                            <p>Connect your LinkedIn account<br>to get started.</p><a class="btn btn-primary" role="button" href="#" onclick="connectLinkedIn()" style="margin-bottom: 20px;color: #FFF !important;border-style: none;">Connect LinkedIn</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" role="dialog" tabindex="-1" id="media-library-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="row" style="width: 100%;">
+                            <div class="col-7">
+                                <h4 class="modal-title">Media Library</h4>
+                            </div>
+                            <div class="col-5 offset-xl-0" style="text-align: right;"><button class="btn btn-primary" id="import-media-button" type="button" onclick="$(&#39;#upload-media&#39;).trigger(&#39;click&#39;);">Import New</button>
+                                <form id="gcs-file-upload" style="display: none;" method="post" enctype="multipart/form-data"><input class="form-control-file" type="file" id="upload-media" style="display: none;" onchange="importMedia()" name="file"></form>
+                                <div class="progress" id="progress-bar" style="height: 10px;">
+                                    <div class="progress-bar bg-primary progress-bar-animated" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-bar-percent" style="width: 0%;"><span class="sr-only">0%</span></div>
+                                </div>
+                            </div>
+                        </div><button class="close" type="button" aria-label="Close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="media-library-form">
+                            <div>
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-4">Image</a></li>
+                                    <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-6">Video</a></li>
+                                    <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-8">GIF</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" role="tabpanel" id="tab-4">
+                                        <div id="media-table-image"></div>
+                                    </div>
+                                    <div class="tab-pane" role="tabpanel" id="tab-6">
+                                        <div id="media-table-video"></div>
+                                    </div>
+                                    <div class="tab-pane" role="tabpanel" id="tab-8">
+                                        <div>
+                                            <div class="input-group gif-search"><input class="form-control" type="text" id="gif-search-input" onkeydown="gifSearchEnter(this)" placeholder="Search GIFs by text">
+                                                <div class="input-group-append"><button class="btn btn-sm" type="reset" style="margin-left: -30px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-64 0 512 512" width="1em" height="1em" fill="currentColor">
+                                                            <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. -->
+                                                            <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"></path>
+                                                        </svg></button></div>
+                                            </div>
+                                            <div id="media-table-gif"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" role="dialog" tabindex="-1" id="template-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="row" style="width: 100%;">
+                            <div class="col-7">
+                                <h4 class="modal-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-32 0 512 512" width="1em" height="1em" fill="currentColor">
+                                        <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. -->
+                                        <path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H288V352c0-17.7 14.3-32 32-32h80V96c0-8.8-7.2-16-16-16H64zM288 480H64c-35.3 0-64-28.7-64-64V96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V320v5.5c0 17-6.7 33.3-18.7 45.3l-90.5 90.5c-12 12-28.3 18.7-45.3 18.7H288z"></path>
+                                    </svg>&nbsp;Stickies</h4>
+                            </div>
+                        </div><button class="close" type="button" aria-label="Close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-9">My notes</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active" role="tabpanel" id="tab-9"><textarea id="mynotes" placeholder="Write anything here. Copy &amp; paste to your post or comments. (Warning: This is an experimental features. It won't be saved to the server. Just locally on your browser cookie.)"></textarea></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" role="dialog" tabindex="-1" id="payment-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title" style="color: var(--primary-link-color);width: 100%;text-align: center;">Time to activate<br>your membership!</h4>
+                                        <div style="text-align: center;padding: 20px;"><img src="https://www.omnicreator.club/images/omni-logo-mcluhan.gif" style="width: 100px;border-radius: 50px;"></div>
+                                        <form class="text-center" id="payment-form" action="/payment/checkout/session" method="post">
+                                            <div class="form-row text-left">
+                                                <div class="col offset-sm-3 offset-lg-2">
+                                                    <div class="form-check"><input class="form-check-input" type="radio" id="annual-plan-radio-button" name="price_id" value="" checked=""><label class="form-check-label" id="annual-field-label" for="formCheck-1"><span>Annual Billing $</span><span id="annual-price">XXX</span>&nbsp;<span>&nbsp;/ year</span>&nbsp;</label></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row text-left">
+                                                <div class="col offset-sm-3 offset-lg-2">
+                                                    <div class="form-check"><input class="form-check-input" type="radio" id="monthly-plan-radio-button" name="price_id" value=""><label class="form-check-label" id="monthly-field-label" for="formCheck-2"><span>Monthly Billing $</span>&nbsp;<span id="monthly-price">XX</span><span>&nbsp;/ month</span>&nbsp;</label></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col">
+                                                    <p style="padding-top: 10px;">We do not accept cancelation within<br>the paid billing cycle.</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-row" style="text-align: center;margin-top: 20px;">
+                                                <div class="col">
+                                                    <div class="form-check"><input class="form-check-input" type="checkbox" id="payment-terms-checkbox" name="terms"><label class="form-check-label" for="formCheck-3">I agree with <a href="https://omnicreator.club/terms.html" target="_blank">Terms and Conditions</a>.</label></div>
+                                                </div>
+                                            </div><input class="form-control" type="hidden" id="payment-account-uid-input" name="account-uid"><input class="form-control" type="hidden" id="payment-feature-name-input" name="feature_name"><button class="btn btn-primary disabled" id="payment-submit-button" type="button" style="margin-top: 20px;" disabled="">Go to Payment Screen on Stripe</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="chat-div" class="fabs"></div>
+    </div>
+    <script src="assets/js/jquery.min.js?h=6bcc3684f18aa21874fa709f122723cf"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js?h=2504f2315ca47ea4d62e67e20a5551d7"></script>
+    <script src="assets/js/table-sortable.min.js?h=d42d27e7698c06e59c33f9118b703825"></script>
+    <script src="assets/js/sidebar.js?h=664dc00728b9ef304b860addc9ca0160"></script>
+    <script src="assets/js/d3.min.js?h=d41d8cd98f00b204e9800998ecf8427e"></script>
+    <script src="assets/js/xhr.min.js?h=7215ee9c7d9dc229d2921a40e899ec5f"></script>
+    <script src="assets/js/icons.js?h=d41d8cd98f00b204e9800998ecf8427e"></script>
+    <script src="assets/js/state.js?h=93445c84884f66e54754b94a38e11541"></script>
+    <script src="assets/js/ui.js?h=eaa2008584737566d1d711097777a294"></script>
+    <script src="assets/js/app.js?h=68b329da9893e34099c7d8ad5cb9c940"></script>
+    <script src="assets/js/admin.js?h=d41d8cd98f00b204e9800998ecf8427e"></script>
+    <script src="assets/js/moment-with-locales.min.js?h=d41d8cd98f00b204e9800998ecf8427e"></script>
+</body>
+
+</html>

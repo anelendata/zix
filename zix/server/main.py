@@ -17,9 +17,10 @@ LOGGER = logging.get_logger(logger_name=__name__)
 
 # dynamic imports from external directries
 CURRENT_DIR =  os.path.join(os.getcwd())
-config = utils.dynamic_import(CURRENT_DIR, "config")
-# plugins = utils.dynamic_import(CURRENT_DIR, "plugins")
-plugins = utils.import_submodules(CURRENT_DIR, "plugins")
+APP_DIR = CURRENT_DIR + "/app"
+config = utils.dynamic_import(APP_DIR, "config")
+# plugins = utils.dynamic_import(APP_DIR, "plugins")
+plugins = utils.import_submodules(APP_DIR, "plugins")
 
 MIDDLEWARE= [
     Middleware(
@@ -45,11 +46,11 @@ MIDDLEWARE= [
 
 if config.USE_AUTH0:
     from zix.server import auth0
-    from plugins.users import crud as users_crud
+    from plugins.auth import crud as auth_crud
     class AuthBackend(auth0.OpenIDAuthBackend):
         def get_token(self, access_token):
             db = next(database.get_db())
-            token = users_crud.get_token(db, access_token=access_token)
+            token = auth_crud.get_token(db, access_token=access_token)
             if token:
                 return token.id_token
             return None

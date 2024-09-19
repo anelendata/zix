@@ -1,0 +1,245 @@
+html, body {
+  color: var(--gray);
+  --app-primary-color: #dce6ff;
+  --app-primary-font-color: #c462dd;
+  --app-secondary-color: #fbf3fc;
+  --app-secondary-font-color: #c462dd;
+  --primary-link-color: #627bdd;
+  --primary-bg-color: #f2f3fc;
+  --secondary-bg-color: #c462dd;
+  --primary-font-color: #c462dd;
+  --secondary-font-color: #fbf3fc;
+  --primary-font-color: #627bdd;
+  --primary-light-shadow: #aebbee;
+  --default-font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 100%;
+}
+
+.content-body {
+  margin-top: 80px;
+  padding: 0px;
+}
+
+.topbar {
+  background-color: #f8f9fc;
+  padding: 0px 0px 15px 30px;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 500;
+  margin-left: 224px;
+}
+
+.main-content {
+  padding: 0px;
+  overflow-y: scroll;
+}
+
+.horizontal-nav {
+  height: 70px;
+  border-style: none;
+  overflow: visible;
+  padding: 10px 0px 10px 20px;
+}
+
+.navbar-nav {
+  height: 70px;
+}
+
+.profile-image {
+  width: 32px;
+  height: 32px;
+}
+
+a {
+  color: var(--primary-link-color);
+  text-decoration: none;
+  background-color: transparent;
+}
+
+.sidebar {
+  background-color: var(--app-primary-color) !important;
+  color: var(--app-primary-font-color);
+}
+
+.btn {
+  background-color: var(--primary-link-color);
+  border: none;
+}
+
+.btn-light {
+  background-color: var(--comment-gray);
+  border: none;
+  color: #999;
+}
+
+.btn.btn-secondary {
+  background-color: var(--gray);
+  color: white;
+  border: none;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+  background-color: var(--app-primary-color) !important;
+  opacity: 1;
+}
+
+.content-body h3 {
+  margin-left: 15px;
+}
+
+.cancelBtn {
+  color: var(--white);
+}
+
+.btn.circle {
+  position: absolute;
+  top: 0px;
+  right: 5px;
+  width: 40px;
+  height: 40px;
+}
+
+.spin {
+  animation: spin-animation 2.0s infinite;
+  display: inline-block;
+}
+
+@keyframes spin-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
+@keyframes cssAnimation {
+  0% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+#alert {
+  position: absolute;
+  top: 75px;
+  z-index: 10000;
+}
+
+#table-sortable {
+  overflow: scroll;
+  max-height: 550px;
+}
+
+#login-modal {
+  z-index: 10000;
+}
+
+#message-modal-header-text {
+  color: var(--primary-link-color);
+}
+
+#sidebarToggleHolder {
+  z-index: 1000;
+}
+
+.btn.btn-primary:disabled {
+  background-color: var(--dark);
+}
+
+.btn-primary.disabled, .btn-primary:disabled {
+  color: #fff;
+  background-color: var(--gray);
+  border-color: var(--gray);
+}
+
+@media (min-width: 576px) {
+  .modal-dialog {
+    max-width: 576px !important;
+  }
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: initial;
+}
+
+.btn-dismiss-input {
+  color: #CCC;
+  background-color: rgba(0,0,0,0);
+  height: 36px;
+  padding: 0px;
+}
+
+.payment-form input {
+  position: relative;
+  left: 0px;
+  width: auto;
+  margin-right: 10px;
+}
+
+.notification-alert {
+  display: inline-block;
+  color: red;
+  font-size: 8px;
+  position: relative;
+  top: -10px;
+  right: 0;
+}
+
+.relative-left-top-corner {
+  position: relative;
+  top: 5px;
+  left: 10px;
+}
+
+.sparkline-default {
+  stroke: var(--primary-link-color);
+  fill: var(--primary-link-color);
+  /*stroke-width: 2;*/
+}
+
+.vertical-line {
+  border-left: 2px solid #AAA;
+  height: 100%;
+  width: 2px;
+}
+
+.modal-body {
+  max-height: 600px;
+  overflow: scroll;
+}
+
+.internal-release {
+  display: none;
+}
+
+.nav-item a {
+  color: var(--primary-link-color);
+}
+
+.profile-image-small {
+  width: 32px;
+  height: auto;
+  border-radius: 50%;
+}
+
+.profile-image-tiny {
+  width: 16px;
+  height: auto;
+  border-radius: 50%;
+}
+
+.tab-title {
+  padding-top: 10px;
+}
+

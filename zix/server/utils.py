@@ -96,7 +96,7 @@ def import_submodules(
 
 
 def is_plugin_active(plugin):
-    path =  os.path.join(os.getcwd())
+    path =  os.path.join(os.getcwd(), "app")
     parent_module = "plugins"
     logger.debug("Checking " + os.path.join(path, parent_module, plugin, "__init__.py"))
     return (

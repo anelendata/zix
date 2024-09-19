@@ -4,7 +4,7 @@ STATIC_HTTP_DOMAIN="static.example.com"
 WORKER_DOMAIN="worker.example.com"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-FRONTEND_ROOT=$SCRIPT_DIR"/../static/"
+FRONTEND_ROOT=$SCRIPT_DIR"/../app/static/"
 
 mkdir -p $FRONTEND_ROOT/compiled/assets/js
 rm $FRONTEND_ROOT/compiled/assets/js/*
