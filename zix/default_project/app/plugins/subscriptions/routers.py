@@ -13,7 +13,9 @@ from fastapi import APIRouter
 router = APIRouter()
 
 from plugins.users import crud as users_crud, schemas as users_schemas
-from external import stripe
+
+if config.USE_PAYMENT:
+    from external import stripe
 
 
 logger = logging.get_logger(logger_name=__name__)

@@ -2,6 +2,7 @@ recursive-include zix *.py
 recursive-include zix/default_project .zixignore
 include zix/default_project/requirements*.txt
 include zix/default_project/env.yml
+include zix/default_project/Dockerfile
 recursive-include zix/default_project/bin *
 include zix/default_project/alembic.ini
 recursive-include zix/default_project/alembic *

@@ -83,6 +83,8 @@ def entry_point(working_dir=None):
         server(args.host, args.port, working_dir, args.log_level)
     elif args.command == "init":
         init_project(working_dir)
+    elif args.command == "add-plugin":
+        add_plugin(working_dir)
     else:
         LOGGER.error(args.command + " is an unrecognized command!")
 
@@ -122,3 +124,12 @@ def init_project(working_dir:str="."):
     shutil.copytree(os.path.join(CODE_DIR, "default_project"), working_dir)
     shutil.copytree(os.path.join(CODE_DIR, "server"), os.path.join(working_dir, "app", "server"))
     LOGGER.info("Default project files created.")
+
+
+def add_plugin(working_dir:str="."):
+    sys.stdout.write(f"Name the plugin using only a-z and _): ")
+    name = input()
+    full_path = os.path.join(working_dir, "app", "plugins", name)
+    shutil.copytree(os.path.join(CODE_DIR, "default_project", "app", "plugins", "plugin_template"),
+                    full_path)
+    LOGGER.info(f"Plugin {name} has been created at {full_path}. To activate it, remove {name}/.zixignore")

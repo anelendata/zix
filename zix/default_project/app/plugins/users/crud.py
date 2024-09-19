@@ -20,9 +20,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 async def get_current_user(
-        request: Request,
-        db: database.Session = Depends(database.get_db),
-        token = Depends(oauth2_scheme),
+    request: Request,
+    db: database.Session = Depends(database.get_db),
+    token = Depends(oauth2_scheme),
     ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -63,19 +63,27 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-        current_user: schemas.UserPrivate = Depends(get_current_user),
-        db: database.Session = Depends(database.get_db),
-        ):
+    current_user: schemas.UserPrivate = Depends(get_current_user),
+    db: database.Session = Depends(database.get_db),
+    ):
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
 
+
+async def get_current_active_admin_user(
+    current_user: schemas.UserPrivate = Depends(get_current_user),
+    db: database.Session = Depends(database.get_db),
+    ):
+    if not current_user.is_active and current_user.is_staff:
+        raise HTTPException(status_code=400, detail="Not allowed")
     return current_user
 
 
 def update_user(
-        db: database.Session,
-        user: schemas.UserModify,
-        ):
+    db: database.Session,
+    user: schemas.UserModify,
+    ):
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -93,10 +101,10 @@ def update_account(
 
 
 def create_account(
-        db: database.Session,
-        account: schemas.AccountCreate,
-        owner: schemas.UserPublic,
-        ):
+    db: database.Session,
+    account: schemas.AccountCreate,
+    owner: schemas.UserPublic,
+    ):
     db_account = models.Account(
         handle=account.handle,
         first_name=account.first_name,
@@ -116,24 +124,24 @@ def create_account(
 
 
 def get_admin_account(
-        db: database.Session,
-        ):
+    db: database.Session,
+    ):
     account_handle = config.ADMIN_ACCOUNT_HANDLE
     return get_account_by_handle(db, account_handle)
 
 
 def get_accounts(
-        db: database.Session,
-        offset: int = 0,
-        limit: int = 100,
-        ):
+    db: database.Session,
+    offset: int = 0,
+    limit: int = 100,
+    ):
     return db.query(models.Account).offset(offset).limit(limit).all()
 
 
 def get_account_by_uid(
-        db: database.Session,
-        uid: str,
-        ):
+    db: database.Session,
+    uid: str,
+    ):
     return db.query(models.Account).filter(
         models.Account.uid == uid).first()
 
@@ -204,41 +212,41 @@ def create_user_and_account(
 
 
 def get_users(
-        db: database.Session,
-        offset: int = 0,
-        limit: int = 100,
-        ):
+    db: database.Session,
+    offset: int = 0,
+    limit: int = 100,
+    ):
     return db.query(models.User).offset(offset).limit(limit).all()
 
 
 def get_user(
-        db: database.Session,
-        user_id: int,
-        ):
+    db: database.Session,
+    user_id: int,
+    ):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
 def get_user_by_uid(
-        db: database.Session,
-        uid: Union[str, uuid.UUID],
-        ):
+    db: database.Session,
+    uid: Union[str, uuid.UUID],
+    ):
     if isinstance(uid, str):
         uid = uuid.UUID(uid)
     return db.query(models.User).filter(models.User.uid==uid).first()
 
 
 def get_user_by_email(
-        db: database.Session,
-        email: str,
-        ):
+    db: database.Session,
+    email: str,
+    ):
     email = email.lower()
     return db.query(models.User).filter(models.User.email == email).first()
 
 
 def get_invitations_by_email(
-        db: database.Session,
-        invitee_email,
-        ):
+    db: database.Session,
+    invitee_email,
+    ):
     invitee_email = invitee_email.lower()
     # Allow to create invitations from differnt people to track the social network
     invitations = db.query(models.Invitation).filter(
@@ -251,11 +259,11 @@ def get_invitations_by_email(
 
 
 def get_or_create_invitation(
-        db: database.Session,
-        invitee_email,
-        inviter: schemas.AccountPublic,
-        invitation_code: models.InvitationCode = None,
-        ):
+    db: database.Session,
+    invitee_email,
+    inviter: schemas.AccountPublic,
+    invitation_code: models.InvitationCode = None,
+    ):
     invitee_email = invitee_email.lower()
     # Allow to create invitations from differnt people to track the social network
     invitation = db.query(models.Invitation).filter(
