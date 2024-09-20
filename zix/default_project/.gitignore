@@ -4,7 +4,7 @@ venv
 .env
 .secrets
 install_test
-static/compiled
+app/static/compiled/assets/js
 
 # Distribution / packaging
 .Python

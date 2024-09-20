@@ -23,7 +23,7 @@ from plugins.users import (
 logger = logging.get_logger(logger_name=__name__)
 
 
-@router.post(config.API_PATH + "/my_objects", response_model=models.MyObjectPrivate)
+@router.post(config.API_PATH + "/my_objects", response_model=schemas.MyObjectPrivate)
 def create_my_object(
     my_object: schemas.MyObjectPrivate,
     # One needs to be logged in to access this method
@@ -34,7 +34,7 @@ def create_my_object(
     return my_object
 
 
-@router.get(config.API_PATH + "/my_objects/{uid}", response_model=models.MyObjectPublic)
+@router.get(config.API_PATH + "/my_objects/{uid}", response_model=schemas.MyObjectPublic)
 def read_my_object(
     uid: str,
     # Without Depends get_current_active_user here, this get method
@@ -45,7 +45,7 @@ def read_my_object(
     return my_object
 
 
-@router.put(config.API_PATH + "/my_objects/{uid}", response_model=models.MyObjectPrivate)
+@router.put(config.API_PATH + "/my_objects/{uid}", response_model=schemas.MyObjectPrivate)
 def update_my_object(
     uid: str,
     my_object: schemas.MyObjectPrivate,

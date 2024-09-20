@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-VERSION = "0.1.8"
+VERSION = "0.1.9"
 
 with open("README.md", "r") as f:
     long_description = f.read()

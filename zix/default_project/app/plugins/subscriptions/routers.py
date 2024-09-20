@@ -14,7 +14,7 @@ router = APIRouter()
 
 from plugins.users import crud as users_crud, schemas as users_schemas
 
-if config.USE_PAYMENT:
+if config.USE_PAYMENTS:
     from external import stripe
 
 

@@ -1,4 +1,6 @@
 import uuid
+from typing import Any, Optional, Union
+
 from fastapi import Depends, HTTPException, status, Request
 
 from zix.server import database, logging
@@ -20,7 +22,7 @@ logger = logging.get_logger(logger_name=__name__)
 # Read this: https://docs.sqlalchemy.org/en/20/orm/quickstart.html#create-objects-and-persist
 def update_my_object(
     db: database.Session,
-    my_object: schemas.my_objectModify,
+    my_object: schemas.MyObjectPrivate,
     ):
     db.add(my_object)
     db.commit()
@@ -30,9 +32,9 @@ def update_my_object(
 
 
 def create_my_object(
-        db: database.Session,
-        my_object: schemas.my_objectCreate,
-        ):
+    db: database.Session,
+    my_object: schemas.MyObjectPrivate,
+    ):
     db_my_object = models.MyObject(
         public_info=my_object.public_info,
         private_info=my_object.private_info,
@@ -42,20 +44,20 @@ def create_my_object(
 
 
 def get_my_object_by_uid(
-        db: database.Session,
-        uid: Union[str, uuid.UUID],
+    db: database.Session,
+    uid: Union[str, uuid.UUID],
     ):
     if isinstance(uid, str):
         uid = uuid.UUID(uid)
     my_object = db.query(models.MyObject).filter(models.MyObject.uid==uid).first()
     if not my_object:
-        return HTTPException(status_code=404, "Object not found")
+        return HTTPException(status_code=404, detail="Object not found")
     return my_object
 
 
 def delete_my_object(
-       db: database.Session,
-        uid: Union[str, uuid.UUID],
+    db: database.Session,
+    uid: Union[str, uuid.UUID],
     ):
     my_object = get_my_object_by_uid(db, uid)
     db.delete(my_object)

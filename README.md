@@ -1,6 +1,12 @@
-# zix
+# zix: Keeping the indie app development simple, fast, and tidy
 
-FastAPI based web app framework.
+Build a mobile friendly web app.
+Battery included: Wiring signups, feature subscriptions, and payment.
+
+- FastAPI (API backend)
+- Auth0 (Authentication)
+- Stripe (Payment)
+- SendGrid (Email)
 
 ## Introduction
 
@@ -22,6 +28,8 @@ Make and activate a Python environment:
 python -m venv venv
 source ./venv/bin/activate
 ```
+
+Install zix:
 
 ```
 pip install -U pip
@@ -97,19 +105,33 @@ Under the myapp directory, you'll find bstudio directory.
 If you have an active license of Bootstrap Studio, you can
 open this project.
 
+https://bootstrapstudio.io
+(I am not affiliated to the company)
+
 Go to Export Settings on Bootstrap Studio and set the export path
 to `myapp/static/compiled`. Then export.
 
 Run the server again. Now you have an (empty) webapp UI.
 
-## Add endpoints
+## Add your plugins
 
-Take a look at `myapp/plugins/core/routers.py` and `myapp/plugins/web/routers.py`.
-You can add your service under plugins directory.
+```
+zix -w . add-plugin
+```
+
+It will ask you the name of the plugin.
+The plugin (ex. my_plugin) will be created under app/plugins/my_plugin
+
+Take a look and modify at app/plugins/my_plugin/README.md to get started.
+
+## Database
+
+The app will create a Sqlite file (zix.db) under the project root.
+This isn't intended for the production use.
+app/config/common.py contains the SQLAlchemy settings for PostgreSQL.
+All you have to do is to modify the credentials in .env/env.yml.
 
 ## Third-party services
-
-In coming release of zix, I'm going to add the complete code to leverage these third-party services:
 
 ### Auth0 (login)
 
@@ -120,5 +142,19 @@ To be written
 To be written
 
 ### SendGrid (email)
+
+To be written
+
+## Deployment
+
+zix apps can be deployed to any cloud virtual machines.
+While the deployment commands vary among the platforms, Dockerfile under the
+app project root will containerize the app.
+
+### Google Cloud Run
+
+To be written
+
+### AWS Lambda
 
 To be written

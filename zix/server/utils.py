@@ -58,14 +58,14 @@ def dynamic_import(
     Usage:
 
     from foo.bar import baz
-    >>> baz = importer('foo.bar.baz')
+    >>> baz = dynamic_import(path, 'foo.bar.baz')
 
     import foo.bar.baz
-    >>> foo = importer('foo.bar.baz', root_package=True)
+    >>> foo = dynamic_import(path ,'foo.bar.baz', root_package=True)
     >>> foo.bar.baz
 
     from .. import baz (level = number of dots)
-    >>> baz = importer('baz', relative_globals=globals(), level=2)
+    >>> baz = dynamic_import(path, 'baz', relative_globals=globals(), level=2)
     """
     sys.path.insert(1, path)
     kwargs = {}

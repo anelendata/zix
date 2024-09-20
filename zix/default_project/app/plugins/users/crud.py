@@ -1,3 +1,4 @@
+import os
 import re
 import uuid
 from datetime import datetime, timedelta
@@ -75,7 +76,7 @@ async def get_current_active_admin_user(
     current_user: schemas.UserPrivate = Depends(get_current_user),
     db: database.Session = Depends(database.get_db),
     ):
-    if not current_user.is_active and current_user.is_staff:
+    if not current_user.is_active or not current_user.is_staff:
         raise HTTPException(status_code=400, detail="Not allowed")
     return current_user
 
@@ -84,6 +85,9 @@ def update_user(
     db: database.Session,
     user: schemas.UserModify,
     ):
+    """
+    This method does not allow to change is_staff value (See UserModify)
+    """
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -197,8 +201,10 @@ def create_user_and_account(
     db: database.Session,
     user: schemas.UserCreate,
     ):
+    is_staff = config.ADMIN_EMAIL == user.email.lower()
     db_user = models.User(
         email=user.email.lower(),
+        is_staff=is_staff,
     )
     db_user = update_user(db, db_user)
 

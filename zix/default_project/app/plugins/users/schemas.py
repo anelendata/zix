@@ -11,10 +11,11 @@ class UserPublic(BaseModel):
 
 class UserPrivate(BaseModel):
     email: str
+    is_staff: bool
 
 
 class UserCreate(UserPrivate):
-    pass
+    is_staff: bool = None
 
 
 class UserModify(BaseModel):

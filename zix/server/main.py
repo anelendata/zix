@@ -19,7 +19,6 @@ LOGGER = logging.get_logger(logger_name=__name__)
 CURRENT_DIR =  os.path.join(os.getcwd())
 APP_DIR = CURRENT_DIR + "/app"
 config = utils.dynamic_import(APP_DIR, "config")
-# plugins = utils.dynamic_import(APP_DIR, "plugins")
 plugins = utils.import_submodules(APP_DIR, "plugins")
 
 MIDDLEWARE= [
@@ -81,6 +80,11 @@ if config.DATABASE_URL:
 plugin_modules = utils.list_submodules(plugins)
 for module_name in plugin_modules.keys():
     LOGGER.info(f"Plugin {module_name} has been registered.")
+
+    plugin_path = os.path.join(APP_DIR, "plugins", module_name)
+    if (os.path.isfile(os.path.join(plugin_path, "routers.py")) or
+        os.path.isdir(os.path.join(plugin_path, "routers"))):
+        plugins = utils.dynamic_import(plugin_path, f"plugins.{module_name}.routers", root_package=True)
     if hasattr(plugin_modules[module_name], "router"):
         router = getattr(plugin_modules[module_name], "router")
     elif hasattr(plugin_modules[module_name], "routers"):

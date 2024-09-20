@@ -24,6 +24,8 @@ for arg in x_args:
 
 print(f"stage: {stage}")
 CURRENT_DIR =  os.path.join(os.getcwd())
+APP_DIR = os.path.join(CURRENT_DIR, "app")
+PLUGIN_DIR = os.path.join(APP_DIR, "plugins")
 
 engine = None
 
@@ -35,7 +37,7 @@ def get_engine():
     yml = config.get_main_option("zix.env_yml")
     if os.path.isfile(yml):
         utils.define_env_vars_from_yaml(yml, stage=stage)
-    zix_config = utils.dynamic_import(CURRENT_DIR, "config")
+    zix_config = utils.dynamic_import(APP_DIR, "config")
 
     engine = database.get_engine(
         zix_config.DATABASE_URL,
@@ -49,10 +51,7 @@ def get_engine():
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-# plugins = utils.import_submodules(CURRENT_DIR, "plugins")
-# plugins = utils.list_submodules(plugins)
-
-plugins = [x for x in os.listdir("plugins") if os.path.isdir(os.path.join("plugins", x))]
+plugins = [x for x in os.listdir(PLUGIN_DIR) if os.path.isdir(os.path.join(PLUGIN_DIR, x))]
 
 model_sets = []
 engine = get_engine()
@@ -61,7 +60,7 @@ target_metadata = models.Base.metadata
 models.Base.metadata.reflect(bind=engine)
 
 for key in plugins:
-    path = os.path.join(CURRENT_DIR, "plugins", key)
+    path = os.path.join(PLUGIN_DIR, key)
     if (key.startswith("_") or
         os.path.isfile(os.path.join(path, ".zixignore")) or
         not os.path.isfile(os.path.join(path, "models.py"))):
@@ -69,7 +68,7 @@ for key in plugins:
     # First import plugin submodule
 
     print(f"Loading {key}")
-    m = utils.dynamic_import(os.path.join(CURRENT_DIR, "plugins"), key + ".models", root_package=True)
+    m = utils.dynamic_import(PLUGIN_DIR, key + ".models", root_package=True)
     model_sets.append(m)
 
 # other values from the config, defined by the needs of env.py,
