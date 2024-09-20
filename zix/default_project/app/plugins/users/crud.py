@@ -6,6 +6,7 @@ from typing import Any, Optional, Union
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
 from starlette.authentication import SimpleUser
 
 from zix.server import database, logging
@@ -222,7 +223,7 @@ def get_users(
     offset: int = 0,
     limit: int = 100,
     ):
-    return db.query(models.User).offset(offset).limit(limit).all()
+    return db.query(models.User).options(joinedload(models.User.account)).offset(offset).limit(limit).all()
 
 
 def get_user(

@@ -6,6 +6,9 @@ API_VERSION = "1"
 API_PATH = "/api/v" + API_VERSION
 
 INVITATION_ONLY = False
+# Referral is tracked by the invitation code.
+USE_REFERRAL = False
+
 USE_AUTH0 = True
 USE_PAYMENTS = False
 

@@ -243,3 +243,12 @@ a {
   padding-top: 10px;
 }
 
+#search-input {
+  width: 80%;
+}
+
+#auth0-login-check-img {
+  width: 96px;
+  height: auto;
+}
+

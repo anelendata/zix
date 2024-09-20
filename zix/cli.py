@@ -108,7 +108,7 @@ def server(
     uvicorn.run(
         APP + ".server.main:app",  # This points to "app" FastAPI object in main.py under server directory
         reload=True,
-        reload_dirs=[CODE_DIR],
+        reload_dirs=[CODE_DIR, working_dir],
         host=host,
         port=port,
         log_level=log_level,

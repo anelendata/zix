@@ -1,3 +1,4 @@
+import base64
 import os
 from typing import List
 
@@ -67,7 +68,7 @@ def read_user(
 
 @router.get(
     config.API_PATH + "/users/me/",
-    response_model=UserEnrichedPrivate,
+    response_model=UserPrivate,
 )
 async def read_users_me(
     current_user: UserPrivate = Depends(crud.get_current_active_user),
@@ -87,8 +88,11 @@ async def read_users_me(
         )
         account = crud.create_account(db, db_account, current_user)
 
-    current_user.invitation_codes = crud.get_invitation_codes_by_user(db, current_user)
+    # TODO: Invitation info could be accessed from another endpoint to reduce the overall db loads
+    if config.USE_INVITATION:
+        current_user.invitation_codes = crud.get_invitation_codes_by_user(db, current_user)
 
+    # TODO: Subscription info could be accessed from another endpoint to reduce the overall db loads
     if config.USE_SUBSCRIPTIONS:
         subs = subscriptions_crud.get_feature_subscriptions_by_account(
             db,
@@ -99,8 +103,11 @@ async def read_users_me(
 
         current_user.payment_plans = []
         if config.USE_PAYMENTS:
+            # This query can be somewhere else to reduce the queries per request
             current_user.payment_plans = subscriptions_crud.get_eligible_payment_plans(db, account)
+
             # If expired, check with Payment platform to see if subscription is renewed
+            # This does not query DB unless we need to update
             subs = subscriptions_crud.update_subscriptions(db, subs)
 
         if len(subs) == 0:

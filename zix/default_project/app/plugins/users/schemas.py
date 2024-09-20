@@ -5,23 +5,6 @@ from typing import List, Optional
 from zix.server.schemas import BaseModel
 
 
-class UserPublic(BaseModel):
-    pass
-
-
-class UserPrivate(BaseModel):
-    email: str
-    is_staff: bool
-
-
-class UserCreate(UserPrivate):
-    is_staff: bool = None
-
-
-class UserModify(BaseModel):
-    email: Optional[str] = None
-
-
 class OrganizationPublic(BaseModel):
     name: Optional[str] = None
     profile_pic_url: Optional[str] = None
@@ -65,7 +48,7 @@ class AccountPrivate(BaseModel):
     last_name: Optional[str] = None
     is_organization: bool
     profile_picture_url: Optional[str] = None
-    memberships: List[MembershipPrivate]  = []
+    # memberships: List[MembershipPrivate]  = []
 
 
 class AccountModify(BaseModel):
@@ -101,6 +84,24 @@ class InvitationCode(InvitationCodeBase):
     created_at: datetime.datetime
 
 
-class UserEnrichedPrivate(UserPrivate):
+class UserPublic(BaseModel):
+    pass
+
+
+class UserPrivate(BaseModel):
+    email: str
+    is_staff: bool
+    is_active: bool
     account: AccountPrivate
+
+
+class UserCreate(UserPrivate):
+    is_staff: bool = None
+
+
+class UserModify(BaseModel):
+    email: Optional[str] = None
+
+
+class UserEnrichedPrivate(UserPrivate):
     invitation_codes: List[InvitationCode] = []

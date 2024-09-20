@@ -1,3 +1,4 @@
+import logging
 import os
 
 from zix.server.utils import str_to_bool
@@ -7,6 +8,11 @@ REDOC_URL = "/redoc"
 
 APP_NAME = "zix"
 IS_TEST = str_to_bool(os.environ.get("IS_TEST"))
+
+SQLALCHEMY_LOG_LEVEL = os.environ.get("SQLALCHEMY_LOG_LEVEL", "INFO")
+if SQLALCHEMY_LOG_LEVEL.lower() == "debug":
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+
 
 if not os.environ.get("DB_HOST"):
     DATABASE_URL = f"sqlite:///./{APP_NAME}.db"

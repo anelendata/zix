@@ -143,7 +143,7 @@ let Payment= $.fn.Payment = (function() {
 
     var _checkSubscription = function() {
         let me = App.getState().get('me');
-        if (!me) return;
+        if (!me || !me.feature_subscriptions) return;
         // Check subscription
         let hasCore = false;
         let paymentIssue = null;
@@ -207,6 +207,7 @@ let Payment= $.fn.Payment = (function() {
 
     // Exposing private members
     return {
+        name: 'Payment',
         init: function() {
             _initView();
             _setStateCallBacks();
@@ -217,3 +218,4 @@ let Payment= $.fn.Payment = (function() {
         },
     };
 })();
+App.plugins.push(Payment);

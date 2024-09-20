@@ -1,8 +1,3 @@
-$(document).ready(function(){
-    App.init();
-    Payment.init();
-});
-
 const ApiPath = '/api/v1';
 const Namespace = 'ZixCore';
 const supportEmail = 'support@anelen.co';
@@ -69,6 +64,7 @@ let App = $.fn.App = (function() {
     let _updateProfile = function(cb=null) {
         token = state.get('token');
         if (!token) {
+            state.set('loginStatus', {status: 'logout'});
             return;
         }
         state.set('lastTokenCheck', moment().utc().unix());
@@ -152,7 +148,10 @@ let App = $.fn.App = (function() {
     // init() should be called first after everything is loaded.
     let _init = function() {
         state = new State(Namespace);
-        AppView.init(state);
+        App.plugins.forEach(plugin=>{
+            console.info('Plugin ' + plugin.name + ' has been initialized');
+            plugin.init(state);
+        });
 
         // It should set the callbacks before any state changes.
         _setStateCallBacks();
@@ -177,8 +176,16 @@ let App = $.fn.App = (function() {
             return _updateProfile(cb);
         },
         ApiPath: ApiPath,
+        plugins: new Array(),
     };
 })();
+
+
+var Tabs = {
+    'tab-1': undefined,
+    settings: undefined,
+    help: undefined,
+};
 
 let AppView = $.fn.AppView = (function() {
     let _setStateCallBacks = function() {
@@ -193,12 +200,6 @@ let AppView = $.fn.AppView = (function() {
         stateCBRegistry.forEach(o=>{
             state.addCB(o[0], o[1]);
         });
-    };
-
-    let Tabs = {
-        'tab-1': undefined,
-        settings: undefined,
-        help: undefined,
     };
 
     // private properties
@@ -370,9 +371,11 @@ let AppView = $.fn.AppView = (function() {
         $('.active-account-full-name').text(firstName + ' ' + lastName);
     };
     let _onLoginStatusChange = function(value) {
+        $('#auth0-login-check-img').hide();
+        $('#auth0-login-button').show();
         $('#auth0-login-button').show();
         $('#auth0-logout-button').hide();
-        if (!value) return;
+        if (!value || value.status === 'logout') return;
         if (value.status === 'true') {
             _showAlert(value.message, 'success', '#login-alert');
         } else {
@@ -394,6 +397,9 @@ let AppView = $.fn.AppView = (function() {
         if (!me) {
             // btn-login-required is used for disabling certain buttons for demo page
             $('.btn-login-required').prop("disabled",true);
+            $('#auth0-login-check-img').hide();
+            $('#auth0-login-button').show();
+            $('#auth0-logout-button').hide();
             _showModal('#login-modal');
             return;
         }
@@ -472,11 +478,17 @@ let AppView = $.fn.AppView = (function() {
     };
 
     return {
+        name: 'AppView',
         init: _init,
+        tabs: Tabs,
         showAlert: _showAlert,
         goToTab: _goToTab,
         handleHttpError: _handleHttpError,
         getCurrentTabName: _getCurrentTabName,
-        showNotifications: _showNotifications,
     };
 })();
+App.plugins.push(AppView);
+
+$(document).ready(function(){
+    App.init();
+});

@@ -48,6 +48,8 @@ if config.USE_AUTH0:
     from plugins.auth import crud as auth_crud
     class AuthBackend(auth0.OpenIDAuthBackend):
         def get_token(self, access_token):
+            if not access_token:
+                return None
             db = next(database.get_db())
             token = auth_crud.get_token(db, access_token=access_token)
             if token:
