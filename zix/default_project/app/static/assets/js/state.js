@@ -3,10 +3,6 @@ const STATE_SESSION = 1;
 const STATE_COOKIE = 2;
 
 class State {
-    static MEMORY = STATE_MEMORY;
-    static SESSION = STATE_SESSION;
-    static COOKIE = STATE_COOKIE;
-
     constructor(appName, cookieExpDays=365) {
         this._var = {};
         this._sessions = new Set();
@@ -36,7 +32,7 @@ class State {
         sessionStorage.removeItem(name);
         this.deleteCookie(name);
         for (const cb of this.getCBs(name)) {
-            cb();
+            cb(null);
         }
         if (removeCallbacks) {
             this.removeAllCBs(name);

@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zix"
+version = "0.1.9"
+description ="zix - Create your SaaS app quickly by adding plugins!"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+authors = [
+    {"name" = "Daigo Tanaka"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "Authlib==0.15.3",
+    "fastapi==0.95.1",
+    "httpx==0.27.2",
+    "itsdangerous==2.1.2",
+    "python-jose==3.3.0",
+    "PyYAML==6.0",
+    "requests==2.32.3",
+    "six==1.16.0",
+    "SQLAlchemy==2.0.33",
+    "SQLAlchemy-Utils==0.41.2",
+    "starlette_context==0.3.6",
+    "uvicorn==0.22.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/anelendata/zix"
+Documentation = "https://github.com/anelendata/zix"
+
+[project.scripts]
+zix = "zix:main.main"
+
+[tool.setuptools]
+packages = ["zix"]
+include-package-data = true
+
+[dependency-groups]
+dev = [
+    "build>=1.3.0",
+]
