@@ -1,7 +1,3 @@
-const ApiPath = '/api/v1';
-const Namespace = 'ZixCore';
-const supportEmail = 'support@anelen.co';
-
 let App = $.fn.App = (function() {
     let _setStateCallBacks = function() {
         let stateCBRegistry = [
@@ -47,7 +43,7 @@ let App = $.fn.App = (function() {
             state.set('notifications', JSON.stringify(default_), State.COOKIE);
         }
         let notif = JSON.parse(state.get('notifications'));
-        get(App.ApiPath + '/users/me/notifications').then(function(response) {
+        get(Config.ApiPath + '/users/me/notifications').then(function(response) {
             notif.notifications = response;
             notif.latest = null;
             notif.notifications.forEach((obj) => {
@@ -62,7 +58,7 @@ let App = $.fn.App = (function() {
     };
 
     let _updateProfile = function(cb=null) {
-        token = state.get('token');
+        let token = state.get('token');
         if (!token) {
             state.set('loginStatus', {status: 'logout'});
             return;
@@ -76,7 +72,7 @@ let App = $.fn.App = (function() {
         if (state.get('psid')) {
             params.push(['psid', state.get('psid')])
         }
-        get(ApiPath + '/users/me/', params, headers).then(response=>{
+        get(Config.ApiPath + '/users/me/', params, headers).then(response=>{
             state.set("me", response);
             state.remove('psid');
             if (cb) {
@@ -136,18 +132,19 @@ let App = $.fn.App = (function() {
 
     let _onAccountUidChange = function(accountUID) {
         if (!accountUID) return;
-        get(ApiPath + '/users/me/settings').then(
+        get(Config.ApiPath + '/users/me/settings').then(
             response=>{
                 state.set('account_settings', response); 
             },
             error => {
             }
         );
-    };
+    }; 
 
     // init() should be called first after everything is loaded.
     let _init = function() {
-        state = new State(Namespace);
+        state = new State(Config.Namespace);
+        Config.ApiPath = Config.apiPath;
         App.plugins.forEach(plugin=>{
             console.info('Plugin ' + plugin.name + ' has been initialized');
             plugin.init(state);
@@ -175,19 +172,13 @@ let App = $.fn.App = (function() {
         updateProfile: function(cb) {
             return _updateProfile(cb);
         },
-        ApiPath: ApiPath,
         plugins: new Array(),
     };
 })();
 
-
-var Tabs = {
-    'tab-1': undefined,
-    settings: undefined,
-    help: undefined,
-};
-
 let AppView = $.fn.AppView = (function() {
+    let Pages = null;
+
     let _setStateCallBacks = function() {
         let stateCBRegistry = [
             // name, callback=null
@@ -215,12 +206,16 @@ let AppView = $.fn.AppView = (function() {
         } else {
             $('#mobile-sidebar-button').hide();        
         }
-        $('.support-email').text(supportEmail);
+        $('.support-email').text(Config.supportEmail);
     };
 
     let _setSidebar = function() {
-        Object.keys(Tabs).forEach(k=>{
-            $('#sidebar-' + k).on('click', function(){_goToTab(k)});
+        $('#sidebar').html('');
+        Object.keys(Pages).forEach(k=>{
+            let icon = Pages[k].menuIcon || Icons.edit;
+            let display = Pages[k].menuDisplay;
+            $('#sidebar').append(`<li class="nav-item mx-3"><a id="sidebar-` + k + `" class="nav-link active text-left px-0 py-1" href="#` + k + `">` + icon + `<span class="text-nowrap mx-2">` + display + `</span></a></li>`);
+            $('#sidebar-' + k).on('click', function(){_goToPage(k)});
         });
     };
 
@@ -232,44 +227,64 @@ let AppView = $.fn.AppView = (function() {
         });
     };
 
+    let _loadPages = function() {
+        const tab = window.location.hash.substr(1);
+        let index = 0;
+        Object.keys(Pages).forEach(k=>{
+            let page = Pages[k];
+            if (!page.content && page.contentURL) {
+                get(page.contentURL).then(response=>{
+                    Pages[k].content = response.content;
+                    $('#' + k).remove();
+                    $('#content').append('<div id="' + k + '" style="display: none;">' + Pages[k].content + '</div>');
+                    if (k && tab == k || (index == 0)) {
+                        _goToPage(tab);
+                    }
+                }, error=>{
+                    AppView.showAlert('Oops, something went wrong. Please try again.', 'danger');
+                });
+            }
+            index++;
+        });
+    };
+
     let _init = function(appState) {
         state = appState;
+        Pages = Config.pages;
         _resetView();
         _setSidebar();
         _setStateCallBacks();
         _setUICallBacks();
-        let tab = window.location.hash.substr(1);
-        _goToTab(tab);
+        _loadPages(); 
     };
 
-    let _getCurrentTabName = function(h) {
-        end = h.search('__');
+    let _getCurrentPageName = function(h) {
+        let end = h.search('__');
         if (end < 0) {
             end = h.length;
         }
         return h.substring(0, end);
     };
 
-    let _goToTab = function(h) {
-        let me = state.get('me');
-        let currentTab = _getCurrentTabName(h);
-        let keys = Object.keys(Tabs);
-        if (!keys.includes(currentTab)) {
-            currentTab = keys[0];
+    let _goToPage = function(h) {
+        let currentPage = _getCurrentPageName(h);
+        let keys = Object.keys(Pages);
+        if (!keys.includes(currentPage)) {
+            currentPage = keys[0];
         }
-        Object.keys(Tabs).forEach(function(s, index){
-            if (s == currentTab) {
+        Object.keys(Pages).forEach(function(s, index){
+            if (s == currentPage) {
                 $('#' + s).show();
             } else {
                 $('#' + s).hide();
             }
         });
 
-        if (Tabs[currentTab] != undefined) {
-            Tabs[currentTab]();
+        if (Pages[currentPage].function != undefined) {
+            Pages[currentPage].function();
         }
         var url = location.href;
-        location.href = "#" + currentTab;
+        location.href = "#" + currentPage;
         history.replaceState(null, null, url);
 
         if (isMobile()) {
@@ -415,10 +430,10 @@ let AppView = $.fn.AppView = (function() {
             $('#admin-mode-nav-item').hide();
         }
 
-        let dropDownHtml = '<a id="notifications" class="dropdown-item" href="#" onclick="App.View.showNotifications()">Notifications<div class="notification-alert">' + circleFillIcon + '</div></a>';
+        let dropDownHtml = '<a id="notifications" class="dropdown-item" href="#" onclick="App.View.showNotifications()">Notifications<div class="notification-alert">' + Icons.circleFill + '</div></a>';
 
         if (me.is_staff) {
-            dropDownHtml += '<a id="admin-mode-nav-item" class="dropdown-item" href="#"><span id="admin-switch">' + toggleOffIcon + '</span><span class="text-nowrap mx-2">Admin</span></a>';
+            dropDownHtml += '<a id="admin-mode-nav-item" class="dropdown-item" href="#"><span id="admin-switch">' + Icons.toggleOff + '</span><span class="text-nowrap mx-2">Admin</span></a>';
         }
 
         dropDownHtml += '<a class="dropdown-item" href="#" onclick="App.logout()"><img src="https://gravatar.com/avatar/hello" class="profile-image-tiny" /> Logout</a>';
@@ -429,11 +444,11 @@ let AppView = $.fn.AppView = (function() {
             $('#admin-mode-nav-item').on('click', function() {
                 if (state.get('admin-mode') === 'on') {
                     state.set('admin-mode', 'off');
-                    $('#admin-switch').html(toggleOffIcon);
+                    $('#admin-switch').html(Icons.toggleOff);
                     $('.internal-release').hide();
                 } else {
                     state.set('admin-mode', 'on');
-                    $('#admin-switch').html(toggleOnIcon);
+                    $('#admin-switch').html(Icons.toggleOn);
                     $('.internal-release').show();
                 }
             });
@@ -445,7 +460,7 @@ let AppView = $.fn.AppView = (function() {
         acctDropdownHtml += '<div class=dropdown-divider></div><a class="dropdown-item" href="#"><strong>Company</strong></a>';
 
         let validActiveAccount = me.account.uid;
-        memberships = me.memberships || [];
+        let memberships = me.memberships || [];
         memberships.forEach(function(obj, index) {
             let organization_name = obj.name || ('Organization ' + obj.uid.slice(0, 8));
             if (obj.status != 'active') {
@@ -480,11 +495,11 @@ let AppView = $.fn.AppView = (function() {
     return {
         name: 'AppView',
         init: _init,
-        tabs: Tabs,
+        tabs: Pages,
         showAlert: _showAlert,
-        goToTab: _goToTab,
+        goToPage: _goToPage,
         handleHttpError: _handleHttpError,
-        getCurrentTabName: _getCurrentTabName,
+        getCurrentPageName: _getCurrentPageName,
     };
 })();
 App.plugins.push(AppView);
