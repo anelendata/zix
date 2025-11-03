@@ -30,7 +30,7 @@ def entry_point(working_dir=None):
     parser.add_argument(
         "command",
         type=str,
-        help="init or serve",
+        help="init, update or serve",
     )
     parser.add_argument(
         "--host",
@@ -83,6 +83,8 @@ def entry_point(working_dir=None):
         server(args.host, args.port, working_dir, args.log_level)
     elif args.command == "init":
         init_project(working_dir)
+    elif args.command == "update":
+        update_project(working_dir)
     elif args.command == "add-plugin":
         add_plugin(working_dir)
     else:
@@ -121,9 +123,34 @@ def init_project(working_dir:str="."):
     if res != "y":
         print("bye!")
         return
-    shutil.copytree(os.path.join(CODE_DIR, "default_project"), working_dir)
-    shutil.copytree(os.path.join(CODE_DIR, "server"), os.path.join(working_dir, "app", "server"))
+    shutil.copytree(
+        os.path.join(CODE_DIR, "default_project"),
+        working_dir,
+    )
+    shutil.copytree(
+        os.path.join(CODE_DIR, "server"),
+        os.path.join(working_dir, "app", "server"),
+    )
     LOGGER.info("Default project files created.")
+
+
+def update_project(working_dir:str="."):
+    sys.stdout.write(f"I'll update the zix server version in {working_dir}. Is this OK? (y/N): ")
+    res = input()
+    if res != "y":
+        print("bye!")
+        return
+    shutil.copytree(
+        os.path.join(CODE_DIR, "default_project", "app"),
+        os.path.join(working_dir, "app"),
+        dirs_exist_ok=True,
+    )
+    shutil.copytree(
+        os.path.join(CODE_DIR, "server"),
+        os.path.join(working_dir, "app", "server"),
+        dirs_exist_ok=True,
+    )
+    LOGGER.info("Server files are updated.")
 
 
 def add_plugin(working_dir:str="."):

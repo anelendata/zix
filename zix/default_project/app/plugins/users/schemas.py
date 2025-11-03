@@ -95,12 +95,11 @@ class UserPrivate(BaseModel):
     account: AccountPrivate
 
 
-class UserCreate(UserPrivate):
-    is_staff: bool = None
-
-
-class UserModify(BaseModel):
+class UserCreate(BaseModel):
     email: Optional[str] = None
+
+class UserModify(UserCreate):
+    pass
 
 
 class UserEnrichedPrivate(UserPrivate):

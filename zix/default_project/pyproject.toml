@@ -37,3 +37,9 @@ dependencies = [
 [tool.setuptools]
 packages = ["app"]
 include-package-data = true
+
+[dependency-groups]
+dev = [
+    "alembic>=1.16.5",
+    "sqlalchemy-utils>=0.41.2",
+]
