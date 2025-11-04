@@ -21,9 +21,9 @@ function isSidebarCollapsed() {
 }
 
 (function($) {
-    let sidebarWidth = 150 + 20;
-    let menuMarginRight = 30;
-    let logoHolder = $('#logo-holder');
+    let sidebarWidth = 150;
+    let menuMarginRight = 60;
+    let logoHolder = $('.logo-holder');
     let win = $(window);
     let w = win.width();
     let h = win.height();
@@ -33,7 +33,7 @@ function isSidebarCollapsed() {
     let sidebar = $('.sidebar');
     let mainContent = $('#main-content');
     let topMenu = $('#top-menu');
-    
+   
     // Collapse on load    
     if (isMobile()) {
         collapseSidebar();
@@ -44,7 +44,8 @@ function isSidebarCollapsed() {
     } else {
         topMenu.width(w - sidebarWidth - menuMarginRight); 
         topMenu.css('margin-left', sidebarWidth);        
-    }    
+    }
+
     body.height(h);
     sidebar.height(h);
     mainContent.height(h);
@@ -105,11 +106,12 @@ function isSidebarCollapsed() {
         if (!isSidebarCollapsed()) {
             sidebar.fadeOut(100,function(){
                 collapseSidebar();
+                onResize();
             });
         }
         else {
             expandSidebar();
+            onResize();
         }
-       
     }
 })(jQuery)

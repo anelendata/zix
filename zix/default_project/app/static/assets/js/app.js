@@ -40,7 +40,7 @@ let App = $.fn.App = (function() {
                     },
                 ],
             };
-            state.set('notifications', JSON.stringify(default_), State.COOKIE);
+            state.set('notifications', JSON.stringify(default_), STATE_COOKIE);
         }
         let notif = JSON.parse(state.get('notifications'));
         get(Config.ApiPath + '/users/me/notifications').then(function(response) {
@@ -52,7 +52,7 @@ let App = $.fn.App = (function() {
                     notif.latest = createdAt;
                 }
             });
-            state.set('notifications', JSON.stringify(notif), State.COOKIE);
+            state.set('notifications', JSON.stringify(notif), STATE_COOKIE);
         }, function(error) {
         });
     };
@@ -99,12 +99,12 @@ let App = $.fn.App = (function() {
         if ($('#_data')[0]) {
             access_token = $('#_data')[0].dataset.token;    
             if (access_token) {
-                state.set('token', access_token, persist=State.COOKIE);
+                state.set('token', access_token, persist=STATE_COOKIE);
             }
             psid = $('#_data')[0].dataset.psid;
             if (psid) {
                 // keep this until the info is updated on server successfully
-                state.set('psid', psid, persist=State.COOKIE);
+                state.set('psid', psid, persist=STATE_COOKIE);
             }
         }
     };
