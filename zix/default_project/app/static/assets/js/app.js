@@ -210,7 +210,11 @@ let AppView = $.fn.AppView = (function() {
     };
 
     let _setSidebar = function() {
-        $('#sidebar').html('');
+        /*
+        $('#sidebar').html(
+            `<li class="nav-item logo-holder"><a id="sidebarToggleHolder" class="nav-link float-right" href="#"><span id="sidebarToggle">` + Icons.hamburgerMenu +
+            `</a></span><div class="text-center text-white mx-4 py-4 logo"></div></li>`);
+        */
         Object.keys(Pages).forEach(k=>{
             let icon = Pages[k].menuIcon || Icons.edit;
             let display = Pages[k].menuDisplay;
