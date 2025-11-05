@@ -4,20 +4,21 @@ STATIC_HTTP_DOMAIN="static.example.com"
 WORKER_DOMAIN="worker.example.com"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-FRONTEND_ROOT=$SCRIPT_DIR"/../app/static/"
+PROJECT_ROOT=$SCRIPT_DIR"/.."
+FRONTEND_ROOT=$PROJECT_ROOT"/app/static/"
 
 mkdir -p $FRONTEND_ROOT/compiled
 rm $FRONTEND_ROOT/compiled/*.html
-cp $FRONTEND_ROOT/*.html  $FRONTEND_ROOT/compiled/
+cp $PROJECT_ROOT/bstudio/exported/*.html  $FRONTEND_ROOT/compiled/
 
-mkdir -p $FRONTEND_ROOT/compiled/assets/js
-rm $FRONTEND_ROOT/compiled/assets/js/*
+mkdir -p $FRONTEND_ROOT/compiled/assets
+rm -fr $FRONTEND_ROOT/compiled/assets/*
+cp -r $PROJECT_ROOT/bstudio/exported/assets/*  $FRONTEND_ROOT/compiled/assets/
 cp $FRONTEND_ROOT/assets/js/*.js $FRONTEND_ROOT/compiled/assets/js/
 cp $FRONTEND_ROOT/assets/min_js/*.js $FRONTEND_ROOT/compiled/assets/js/
 
 # admin
 mkdir -p $FRONTEND_ROOT/compiled/assets/admin
-rm -fr $FRONTEND_ROOT/compiled/assets/admin/*
 cp -r $FRONTEND_ROOT/assets/admin/* $FRONTEND_ROOT/compiled/assets/admin/
 
 

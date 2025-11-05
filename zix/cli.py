@@ -146,6 +146,11 @@ def update_project(working_dir:str="."):
         dirs_exist_ok=True,
     )
     shutil.copytree(
+        os.path.join(CODE_DIR, "default_project", "bstudio"),
+        os.path.join(working_dir, "bstudio"),
+        dirs_exist_ok=True,
+    )
+    shutil.copytree(
         os.path.join(CODE_DIR, "server"),
         os.path.join(working_dir, "app", "server"),
         dirs_exist_ok=True,

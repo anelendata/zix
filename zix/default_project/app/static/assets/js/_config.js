@@ -20,7 +20,4 @@ const Config = {
             function: undefined,
         },
     },
-    plugins: [
-        // Payment,
-    ],
 };
