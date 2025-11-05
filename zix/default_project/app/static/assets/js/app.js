@@ -244,6 +244,9 @@ let AppView = $.fn.AppView = (function() {
                     if (k && tab == k || (index == 0)) {
                         _goToPage(tab);
                     }
+                    if (Pages[k].onLoad) {
+                        Pages[k].onLoad();
+                    }
                 }, error=>{
                     AppView.showAlert('Oops, something went wrong. Please try again.', 'danger');
                 });
@@ -284,8 +287,8 @@ let AppView = $.fn.AppView = (function() {
             }
         });
 
-        if (Pages[currentPage].function != undefined) {
-            Pages[currentPage].function();
+        if (Pages[currentPage].onStart) {
+            Pages[currentPage].onStart();
         }
         var url = location.href;
         location.href = "#" + currentPage;

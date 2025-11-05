@@ -7,17 +7,20 @@ const Config = {
             menuIcon: Icons.edit,
             menuDisplay: 'Tab 1',
             contentURL: '/assets/pages/tab_1.html',
-            function: undefined,
+            onLoad: undefined,
+            onStart: undefined,
         },
         settings: {
             menuIcon: Icons.cog,
             menuDisplay: 'Settings',
-            function: undefined,
+            onLoad: undefined,
+            onStart: undefined,
         },
         help: {
             menuIcon: Icons.heartShield,
             menuDisplay: 'Help',
-            function: undefined,
+            onLoad: undefined,
+            onStart: undefined,
         },
     },
 };

@@ -36,4 +36,5 @@ let MyPlugin = (function() {
         },
     };
 })();
+// Uncommend below to register the plusin to App
 // App.plugins.push(MyPlugin);
