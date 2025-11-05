@@ -19,5 +19,8 @@ const Config = {
             menuDisplay: 'Help',
             function: undefined,
         },
-    }
+    },
+    plugins: [
+        // Payment,
+    ],
 };

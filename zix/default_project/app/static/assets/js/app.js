@@ -145,6 +145,7 @@ let App = $.fn.App = (function() {
     let _init = function() {
         state = new State(Config.Namespace);
         Config.ApiPath = Config.apiPath;
+        App.plugins = Config.plugins;
         App.plugins.forEach(plugin=>{
             console.info('Plugin ' + plugin.name + ' has been initialized');
             plugin.init(state);
