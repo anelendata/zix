@@ -83,6 +83,11 @@ async def _process_sso_login(request: Request, db: Session, userinfo):
                 return RedirectResponse(url="/?message=Sorry, invitation only.&success=false")
         new_user = users_schemas.UserCreate(email=email)
         user = users_routers.create_user(new_user, db)
+        if config.SENDGRID_KEY:
+            try:
+                sendgrid.add_onboarding_email_subscriber(email)
+            except Exception as e:
+                logger.error("Sendgrid Error: " + str(e))
 
     if user.auth_app_user_uid:
         if user.auth_app_user_uid.lower() != provider_user_id:
@@ -155,6 +160,11 @@ if config.USE_AUTH0:
                     return RedirectResponse(url="/?message=Sorry, invitation only.&success=false")
             new_user = users_schemas.UserCreate(email=email)
             user = users_routers.create_user(new_user, db)
+            if config.SENDGRID_KEY:
+                try:
+                    sendgrid.add_onboarding_email_subscriber(email)
+                except Exception as e:
+                    logger.error("Sendgrid Error: " + str(e))
 
         auth0_user_id = userinfo.get("sub", "").lower()
         if user.auth_app_user_uid:
