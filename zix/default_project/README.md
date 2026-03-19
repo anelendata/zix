@@ -1,112 +1,123 @@
 # A webapp powered by [zix](https://pypi.org/project/zixweb)
 
-The rest of the document assumes your project is in `myapp` directory.
+The rest of the document assumes your project is in `myapp` directory and that
+the server is started from the **parent** directory (e.g. `zix_projects/`).
+
+## Install dependencies
+
+```bash
+uv sync
+```
 
 ## Create tables
 
-By default, it will run Sqlite and creates zix.db file in the project root directory.
+By default, the app uses SQLite and creates `zix.db` in the project root.
+Run Alembic to create the schema **before** starting the server for the first time —
+the auth middleware queries the `token` table on every request.
 
-```
-alembic revision --autogenerate -m "initial models"
-alembic upgrade head
-```
-
-## Set up env.yml file
-
-From the project root, do:
-
-```
-mkdir .env
-cp env.yml .env
+```bash
+uv run alembic revision --autogenerate -m "initial"
+uv run alembic upgrade head
 ```
 
-Open .env/env.yml at the root project directory.
+## Compile frontend assets
 
-To use Auth0 login, sign up (should be free) at https://auth0.com
-
-To try the test app,
-1. Go to Applications from the left menu and select Default App.
-2. Copy and Domain, Client ID and Client Secret and paste them into env.yml file into the corresponding fields.
-3. Set Application Type to "Regular Web Application."
-4. Enter "http://localhost:4000" to Allowed Callback URLs, Allowed Logout URLs, and Allowed Web Origins
-5. Click Save
-
-## Run app
-
-Go to the project root directory and run:
-
-```
-zix -w . -p 4000 -e .env/env.yml serve
+```bash
+bash bin/compile
 ```
 
-Point browser to `http://localhost:4000`
+> This also copies `app/static/assets/js/_config.js` to
+> `compiled/assets/js/config.js`. Without this step the browser throws
+> `Uncaught ReferenceError: Config is not defined`.
+
+## Set up env.yml
+
+```bash
+mkdir -p .env
+cp env.yml .env/env.yml
+```
+
+Open `.env/env.yml` and configure your auth credentials (see [Authentication](#authentication) below).
+
+## Run the app
+
+**Important:** run from the **parent** directory, not from inside the app folder.
+
+```bash
+uv run zix serve -w myapp -p 4000 -e myapp/.env/env.yml
+```
+
+Point your browser to `http://localhost:4000`.
+
+## Authentication
+
+By default the app uses **fastapi-sso** (open source, no external account needed)
+with Google SSO enabled. Set `USE_AUTH0: "true"` in `env.yml` to switch to Auth0.
+
+**fastapi-sso provider toggles:**
+
+| Provider | Flag | Default |
+|----------|------|---------|
+| Google | `USE_GOOGLE_SSO` | `"true"` |
+| GitHub | `USE_GITHUB_SSO` | `"false"` |
+| LinkedIn | `USE_LINKEDIN_SSO` | `"false"` |
+
+`/login` redirects to the first enabled provider. Set the OAuth callback URL in
+your provider's app settings to `http://localhost:4000/callback/<provider>`
+(e.g. `/callback/google`).
+
+**Auth0:** set `USE_AUTH0: "true"` and fill in `AUTH0_CLIENT_ID`,
+`AUTH0_CLIENT_SECRET`, `AUTH0_DOMAIN`. Add `http://localhost:4000/callback` to
+Allowed Callback URLs in your Auth0 dashboard.
 
 ## Frontend and static files
 
-Try modifying `myapp/static/compiled/index.html`
-and run the server again.
+Edit `app/static/compiled/index.html` directly for quick changes.
 
-Place frontend and static files under `myapp/static/compiled`
-Anything under compiled folder is served under `/`
-as long as the path is not taken by the API endpoints you define.
+For structured frontend work, open `bstudio/` in Bootstrap Studio, set the
+export path to `app/static/compiled/`, export, then re-run `bash bin/compile`.
 
+Edit `app/static/assets/js/_config.js` to customise navigation pages and
+settings — this is the source of truth for `config.js`.
 
-## Vanilla Bootstrap Studio project
+## Add plugins
 
-Under the myapp directory, you'll find bstudio directory.
-If you have an active license of Bootstrap Studio, you can
-open this project.
-
-https://bootstrapstudio.io
-(I am not affiliated to the company)
-
-Go to Export Settings on Bootstrap Studio and set the export path
-to `myapp/static/compiled`. Then export.
-
-Run the server again. Now you have an (empty) webapp UI.
-
-## Add your plugins
-
-```
-zix -w . add-plugin
+```bash
+uv run zix add-plugin -w myapp
 ```
 
-It will ask you the name of the plugin.
-The plugin (ex. my_plugin) will be created under app/plugins/my_plugin
-
-Take a look and modify at app/plugins/my_plugin/README.md to get started.
+The plugin skeleton is created at `app/plugins/<plugin_name>/`.
 
 ## Database
 
-The app will create a Sqlite file (zix.db) under the project root.
-This isn't intended for the production use.
-app/config/common.py contains the SQLAlchemy settings for PostgreSQL.
-All you have to do is to modify the credentials in .env/env.yml.
+SQLite is the default (creates `zix.db`). For production PostgreSQL, set these
+in `env.yml`:
+
+```yaml
+DATABASE: "your_database_name"
+DB_HOST: "your-db-host"
+DB_USERNAME: "your-db-username"
+DB_PASSWORD: "your-db-password"
+```
 
 ## Third-party services
 
-### Auth0 (login)
-
-To be written
-
 ### Stripe (payment)
 
-To be written
+Set `STRIPE_API_KEY` and `STRIPE_API_SECRET` in `env.yml`.
 
 ### SendGrid (email)
 
-To be written
+Set `SENDGRID_KEY`, `SENDGRID_FROM_EMAIL`, and related template IDs in `env.yml`.
 
 ## Deployment
 
-zix apps can be deployed to any cloud virtual machines.
-While the deployment commands vary among the platforms, Dockerfile under the
-app project root will containerize the app.
+A `Dockerfile` is included. Dependencies are installed via uv from `pyproject.toml`.
 
 ### Google Cloud Run
 
-To be written
+To be written.
 
 ### AWS Lambda
 
-To be written
+To be written.
