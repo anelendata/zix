@@ -212,6 +212,17 @@ if config.USE_AUTH0:
 
 else:
     @router.get("/login")
+    async def login(request: Request, next: str = "/"):
+        """Redirect to the first enabled SSO provider."""
+        request.session["next"] = next
+        if config.USE_GOOGLE_SSO:
+            return RedirectResponse(url="/login/google")
+        if config.USE_GITHUB_SSO:
+            return RedirectResponse(url="/login/github")
+        if config.USE_LINKEDIN_SSO:
+            return RedirectResponse(url="/login/linkedin")
+        raise HTTPException(status_code=503, detail="No SSO provider is enabled.")
+
     @router.get("/login/google")
     async def login_google(request: Request, next: str = "/"):
         _require_provider(config.USE_GOOGLE_SSO, "Google")
