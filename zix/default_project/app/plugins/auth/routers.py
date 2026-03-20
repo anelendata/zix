@@ -1,60 +1,85 @@
 import datetime
-import os
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette.responses import RedirectResponse
 
-from zix.server.auth0 import oauth, logout as auth0_logout
 from zix.server.database import Session, get_db
 from zix.server.logging import get_logger
 
 import config
 from . import crud, models, schemas
-from fastapi import APIRouter
-router = APIRouter()
-
 from plugins.users import crud as users_crud, schemas as users_schemas, routers as users_routers
 
-
+router = APIRouter()
 logger = get_logger(logger_name=__name__)
 
+# --- Conditional imports ---
 
-@router.get("/login")
-async def login(
+if config.USE_AUTH0:
+    from zix.server.auth0 import oauth, logout as auth0_logout
+
+if config.USE_GOOGLE_SSO:
+    from fastapi_sso.sso.google import GoogleSSO
+
+if config.USE_GITHUB_SSO:
+    from fastapi_sso.sso.github import GithubSSO
+
+if config.USE_LINKEDIN_SSO:
+    from fastapi_sso.sso.linkedin import LinkedInSSO
+
+
+# --- SSO helpers ---
+
+def _require_provider(enabled: bool, name: str):
+    if not enabled:
+        raise HTTPException(status_code=404, detail=f"{name} SSO is not enabled")
+
+
+def get_google_sso():
+    return GoogleSSO(
+        client_id=config.GOOGLE_CLIENT_ID,
+        client_secret=config.GOOGLE_CLIENT_SECRET,
+        redirect_uri=config.HTTP_DOMAIN + "/callback/google",
+        allow_insecure_http=True,
+    )
+
+
+def get_github_sso():
+    return GithubSSO(
+        client_id=config.GITHUB_CLIENT_ID,
+        client_secret=config.GITHUB_CLIENT_SECRET,
+        redirect_uri=config.HTTP_DOMAIN + "/callback/github",
+        allow_insecure_http=True,
+    )
+
+
+def get_linkedin_sso():
+    return LinkedInSSO(
+        client_id=config.LINKEDIN_CLIENT_ID,
+        client_secret=config.LINKEDIN_CLIENT_SECRET,
+        redirect_uri=config.HTTP_DOMAIN + "/callback/linkedin",
+        allow_insecure_http=True,
+    )
+
+
+async def _process_sso_login(
     request: Request,
-    next: str = "/",
-    ):
-    auth0 = oauth.create_client("auth0")
-    redirect_uri = request.url_for("callback")
-    request.session["next"] = next
-    return await auth0.authorize_redirect(request, str(redirect_uri))
+    db: Session,
+    email: str,
+    provider_user_id: str,
+    picture: str = None,
+    access_token: str = None,
+    id_token: str = None,
+    expires_at=None,
+):
+    """Shared post-SSO-callback logic: create/find user, issue token, set session.
 
+    For Auth0, pass access_token/id_token/expires_at from the Auth0 token response
+    and they will be stored as-is. Otherwise an internal token is created.
+    """
+    email = email.lower()
 
-@router.get("/callback")
-async def callback(
-    request: Request,
-    db: Session = Depends(get_db),
-    ):
-    auth0 = oauth.create_client("auth0")
-    white_list = [
-        "mismatching_state",
-    ]
-    try:
-        token = await auth0.authorize_access_token(request)
-    except Exception as e:
-        # If not in white list, create an error log
-        if not any(keyword in str(e) for keyword in white_list):
-            logger.error("Auth0 Error: " + str(e))
-        else:
-            logger.warning("Auth0 Warning: " + str(e))
-        return RedirectResponse(url="/?message=Hmm...Something went wrong.<br/>Please try again. If you accessed from in-app browser, please use Safari or Chrome browser instead.")
-
-    resp = await auth0.get("userinfo", token=token)
-    userinfo = resp.json()
-    email = userinfo["email"].lower()
-
-    invitation_code = None
-    code =  request.session.get("invitation_code")
+    code = request.session.get("invitation_code")
     if code:
         try:
             users_crud.claim_invitation(db, email, code)
@@ -63,7 +88,6 @@ async def callback(
         del request.session["invitation_code"]
 
     user = users_crud.get_user_by_email(db, email)
-    # User not found. Redirect to home page
     if not user:
         if config.INVITATION_ONLY and email != config.ADMIN_EMAIL:
             invitation = users_crud.get_invitations_by_email(db, email).first()
@@ -77,69 +101,190 @@ async def callback(
             except Exception as e:
                 logger.error("Sendgrid Error: " + str(e))
 
-    auth0_user_id = userinfo.get("sub", "").lower()
     if user.auth_app_user_uid:
-        if user.auth_app_user_uid.lower() != auth0_user_id:
-            return RedirectResponse(url=f"/?message=You used a different login method (Google vs. Email) before. Please try the one you used before. Please contact support@omnicreator.club if you have quesitions.")
+        if user.auth_app_user_uid.lower() != provider_user_id:
+            return RedirectResponse(url="/?message=You used a different login method before. Please use the same one.")
     else:
-        user.auth_app_user_uid = auth0_user_id
+        user.auth_app_user_uid = provider_user_id
         db.add(user)
         db.commit()
 
-    if not userinfo["email_verified"]:
-        return RedirectResponse(url="/?message=Check your inbox/spam folder<br>to verify your email<br>and try again.&success=false")
-
-    access_token = token["access_token"]
-    id_token = token["id_token"]
-    expires_at = token["expires_at"]
+    if picture and user.account and not user.account.profile_pic_url:
+        user.account.profile_pic_url = picture
+        db.add(user.account)
 
     utcnow = datetime.datetime.utcnow()
     if not user.activated_at:
         user.activated_at = utcnow
-
     user.last_login = utcnow
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    data = {
-        "sub": str(user.uid),
-    }
-    crud.create_access_token(
-        db,
-        data,
-        access_token=access_token,
-        id_token=id_token,
-        expires_at=expires_at,
-        )
+    if access_token:
+        # Auth0 mode: store Auth0's own tokens in DB
+        crud.create_access_token(db, {"sub": str(user.uid)},
+                                  access_token=access_token, id_token=id_token, expires_at=expires_at)
+    else:
+        # fastapi-sso mode: create an internal token
+        if expires_at is None:
+            expires_at = utcnow + datetime.timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = crud.create_access_token(db, {"sub": str(user.uid)}, expires_at=expires_at)
 
     request.session["access_token"] = access_token
     request.session["current_user_uid"] = str(user.uid)
-    next_ = request.session.get("next", "/")
-    if next_ != "/":
-        del request.session["next"]
+    next_ = request.session.pop("next", "/")
     return RedirectResponse(url=next_)
 
 
-@router.get(config.API_PATH + "/logout")
-@router.get("/logout")
-async def logout(
-    request: Request,
-    db: Session = Depends(get_db),
+# --- Auth0 routes ---
+
+if config.USE_AUTH0:
+    @router.get("/login")
+    async def login(request: Request, next: str = "/"):
+        auth0 = oauth.create_client("auth0")
+        redirect_uri = request.url_for("callback")
+        request.session["next"] = next
+        return await auth0.authorize_redirect(request, str(redirect_uri))
+
+    @router.get("/callback")
+    async def callback(request: Request, db: Session = Depends(get_db)):
+        auth0 = oauth.create_client("auth0")
+        try:
+            token = await auth0.authorize_access_token(request)
+        except Exception as e:
+            if "mismatching_state" not in str(e):
+                logger.error("Auth0 Error: " + str(e))
+            else:
+                logger.warning("Auth0 Warning: " + str(e))
+            return RedirectResponse(url="/?message=Login failed. Please try again.")
+
+        resp = await auth0.get("userinfo", token=token)
+        userinfo = resp.json()
+
+        if not userinfo.get("email_verified"):
+            return RedirectResponse(url="/?message=Check your inbox/spam folder to verify your email and try again.&success=false")
+
+        return await _process_sso_login(
+            request, db,
+            email=userinfo["email"],
+            provider_user_id=userinfo.get("sub", "").lower(),
+            picture=userinfo.get("picture"),
+            access_token=token["access_token"],
+            id_token=token["id_token"],
+            expires_at=token["expires_at"],
+        )
+
+    @router.get(config.API_PATH + "/logout")
+    @router.get("/logout")
+    async def logout(request: Request):
+        request.session.clear()
+        return auth0_logout(request)
+
+    @router.post(config.API_PATH + "/logout/")
+    @router.post("/logout/")
+    async def logout_post(
+        request: Request,
+        current_user: users_schemas.UserPrivate = Depends(users_crud.get_current_active_user),
+        db: Session = Depends(get_db),
     ):
-    request.session.clear()
-    return auth0_logout(request)
+        tokens = crud.get_tokens_by_user(db, current_user)
+        for t in tokens:
+            crud.delete_token(db, t.access_token)
+        request.session.clear()
+        return auth0_logout(request)
 
 
-@router.post(config.API_PATH + "/logout/")
-@router.post("/logout/")
-async def logout(
-    request: Request,
-    current_user: users_schemas.UserPrivate = Depends(users_crud.get_current_active_user),
-    db: Session = Depends(get_db),
+# --- fastapi-sso routes ---
+
+else:
+    @router.get("/login")
+    async def login(request: Request, next: str = "/"):
+        """Redirect to the first enabled SSO provider."""
+        request.session["next"] = next
+        if config.USE_GOOGLE_SSO:
+            return RedirectResponse(url="/login/google")
+        if config.USE_GITHUB_SSO:
+            return RedirectResponse(url="/login/github")
+        if config.USE_LINKEDIN_SSO:
+            return RedirectResponse(url="/login/linkedin")
+        raise HTTPException(status_code=503, detail="No SSO provider is enabled.")
+
+    @router.get("/login/google")
+    async def login_google(request: Request, next: str = "/"):
+        _require_provider(config.USE_GOOGLE_SSO, "Google")
+        request.session["next"] = next
+        async with get_google_sso() as sso:
+            return await sso.get_login_redirect()
+
+    @router.get("/login/github")
+    async def login_github(request: Request, next: str = "/"):
+        _require_provider(config.USE_GITHUB_SSO, "GitHub")
+        request.session["next"] = next
+        async with get_github_sso() as sso:
+            return await sso.get_login_redirect()
+
+    @router.get("/login/linkedin")
+    async def login_linkedin(request: Request, next: str = "/"):
+        _require_provider(config.USE_LINKEDIN_SSO, "LinkedIn")
+        request.session["next"] = next
+        async with get_linkedin_sso() as sso:
+            return await sso.get_login_redirect()
+
+    @router.get("/callback/google")
+    async def callback_google(request: Request, db: Session = Depends(get_db)):
+        _require_provider(config.USE_GOOGLE_SSO, "Google")
+        async with get_google_sso() as sso:
+            try:
+                userinfo = await sso.process_login("code", request)
+            except Exception as e:
+                logger.error("Google SSO Error: " + str(e))
+                return RedirectResponse(url="/?message=Login failed. Please try again.")
+        return await _process_sso_login(request, db,
+            email=userinfo.email, provider_user_id=f"{userinfo.provider}|{userinfo.id}",
+            picture=userinfo.picture)
+
+    @router.get("/callback/github")
+    async def callback_github(request: Request, db: Session = Depends(get_db)):
+        _require_provider(config.USE_GITHUB_SSO, "GitHub")
+        async with get_github_sso() as sso:
+            try:
+                userinfo = await sso.process_login("code", request)
+            except Exception as e:
+                logger.error("GitHub SSO Error: " + str(e))
+                return RedirectResponse(url="/?message=Login failed. Please try again.")
+        return await _process_sso_login(request, db,
+            email=userinfo.email, provider_user_id=f"{userinfo.provider}|{userinfo.id}",
+            picture=userinfo.picture)
+
+    @router.get("/callback/linkedin")
+    async def callback_linkedin(request: Request, db: Session = Depends(get_db)):
+        _require_provider(config.USE_LINKEDIN_SSO, "LinkedIn")
+        async with get_linkedin_sso() as sso:
+            try:
+                userinfo = await sso.process_login("code", request)
+            except Exception as e:
+                logger.error("LinkedIn SSO Error: " + str(e))
+                return RedirectResponse(url="/?message=Login failed. Please try again.")
+        return await _process_sso_login(request, db,
+            email=userinfo.email, provider_user_id=f"{userinfo.provider}|{userinfo.id}",
+            picture=userinfo.picture)
+
+    @router.get(config.API_PATH + "/logout")
+    @router.get("/logout")
+    async def logout(request: Request):
+        request.session.clear()
+        return RedirectResponse(url="/")
+
+    @router.post(config.API_PATH + "/logout/")
+    @router.post("/logout/")
+    async def logout_post(
+        request: Request,
+        current_user: users_schemas.UserPrivate = Depends(users_crud.get_current_active_user),
+        db: Session = Depends(get_db),
     ):
-    tokens = crud.get_tokens_by_user(db, current_user)
-    for t in tokens:
-        crud.delete_token(db, t.access_token)
-    request.session.clear()
-    return auth0_logout(request)
+        tokens = crud.get_tokens_by_user(db, current_user)
+        for t in tokens:
+            crud.delete_token(db, t.access_token)
+        request.session.clear()
+        return RedirectResponse(url="/")

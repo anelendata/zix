@@ -9,7 +9,23 @@ INVITATION_ONLY = False
 # Referral is tracked by the invitation code.
 USE_REFERRAL = False
 
-USE_AUTH0 = True
+USE_AUTH0 = os.getenv("USE_AUTH0", "false").lower() == "true"
+AUTH0_CLIENT_ID = os.getenv("AUTH0_CLIENT_ID", "")
+AUTH0_CLIENT_SECRET = os.getenv("AUTH0_CLIENT_SECRET", "")
+AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN", "")
+
+USE_GOOGLE_SSO = os.getenv("USE_GOOGLE_SSO", "true").lower() == "true"
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+
+USE_LINKEDIN_SSO = os.getenv("USE_LINKEDIN_SSO", "false").lower() == "true"
+LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID", "")
+LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET", "")
+
+USE_GITHUB_SSO = os.getenv("USE_GITHUB_SSO", "false").lower() == "true"
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "")
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "")
+
 USE_PAYMENTS = False
 
 DEFAULT_FEATURE_NAME = "core"

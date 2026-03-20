@@ -24,6 +24,17 @@ else:
     DATABASE_NAME = os.environ.get("DATABASE")
     DATABASE_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DATABASE_NAME}"
 
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+
+USE_LINKEDIN_SSO = os.getenv("USE_LINKEDIN_SSO", "false").lower() == "true"
+LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID", "")
+LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET", "")
+
+USE_GITHUB_SSO = os.getenv("USE_GITHUB_SSO", "false").lower() == "true"
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "")
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "")
+
 STATIC_HTTP_DOMAIN = os.getenv("STATIC_HTTP_DOMAIN")
 
 CORS_ORIGINS = [
