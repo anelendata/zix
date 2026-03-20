@@ -16,6 +16,28 @@ email services, and paywall very quickly.
 Since those are common skeleton for most SaaS apps, I built a plugin
 framework to build apps quickly.
 
+## Design philosophy
+
+### Plugin architecture
+
+Each feature lives in its own directory under `app/plugins/` and owns its
+`models`, `schemas`, `crud`, and `routers` — keeping concerns separated and
+making it easy to add, remove, or disable features without touching unrelated
+code.
+
+Plugins are discovered automatically at boot time: any subdirectory with an
+`__init__.py` is imported. To disable a plugin without deleting it, drop a
+`.zixignore` file inside it.
+
+**Performance:** plugin discovery and import happens once at server startup.
+Python caches every imported module in `sys.modules`, so there is no
+per-request import overhead. Adding more plugins does not affect runtime
+performance.
+
+**Cross-plugin dependencies** (e.g. `auth` importing from `users`) are
+explicit — you reference the plugin by name. Keep these dependencies
+minimal and one-directional to avoid tight coupling.
+
 ## Prerequisites
 
 - A supported Python version (see [Python release schedule](https://devguide.python.org/versions/))
