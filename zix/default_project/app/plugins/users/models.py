@@ -39,6 +39,7 @@ class Account(Base):
     def profile_picture_url(self):
         if self.profile_pic_url:
             return self.profile_pic_url
+        # MD5 is required by the Gravatar API specification; this is not a choice.
         email_md5 = hashlib.md5(self.user.email.encode("utf-8")).hexdigest()
         return f"https://gravatar.com/avatar/{email_md5}"
 

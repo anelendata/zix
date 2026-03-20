@@ -78,7 +78,7 @@ async def get_current_active_admin_user(
     db: database.Session = Depends(database.get_db),
     ):
     if not current_user.is_active or not current_user.is_staff:
-        raise HTTPException(status_code=400, detail="Not allowed")
+        raise HTTPException(status_code=403, detail="Not allowed")
     return current_user
 
 
@@ -202,7 +202,7 @@ def create_user_and_account(
     db: database.Session,
     user: schemas.UserCreate,
     ):
-    is_staff = config.ADMIN_EMAIL == user.email.lower()
+    is_staff = bool(config.ADMIN_EMAIL) and config.ADMIN_EMAIL.lower() == user.email.lower()
     db_user = models.User(
         email=user.email.lower(),
         is_staff=is_staff,

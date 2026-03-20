@@ -15,6 +15,6 @@ DATABASE_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DATABASE_NA
 STATIC_HTTP_DOMAIN = os.getenv("STATIC_HTTP_DOMAIN")
 
 CORS_ORIGINS = [
-        "https://{DOMAIN}",
+        f"https://{DOMAIN}",
         STATIC_HTTP_DOMAIN,
 ]
