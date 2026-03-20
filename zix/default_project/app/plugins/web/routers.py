@@ -1,3 +1,4 @@
+import html
 import os
 from fastapi import APIRouter, Depends, Request, status, HTTPException
 from fastapi.responses import HTMLResponse
@@ -35,7 +36,7 @@ def _page(
     access_token = request.session.get("access_token")
     if access_token:
         del request.session["access_token"]
-        body += f'<meta id="_data" data-token="{access_token}">'
+        body += f'<meta id="_data" data-token="{html.escape(access_token, quote=True)}">'
 
     if USE_STRIPE:
         payment_session_id = request.session.get("payment_session_id")

@@ -33,7 +33,7 @@ TRIAL_PAYMENT_PLAN = "core-trial"
 TRIAL_PAYMENT_PLAN_DESCRIPTION = "Free trial"
 FREE_TRIAL_DEFAULT_DAYS = 7
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
 DISABLE_ADMIN_PAGE = (os.getenv("DISABLE_ADMIN_PAGE", "False").lower() == "true")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
@@ -48,7 +48,9 @@ HTTP_DOMAIN = os.getenv("HTTP_DOMAIN", "")
 STATIC_HTTP_DOMAIN = os.getenv("STATIC_HTTP_DOMAIN", "")
 
 TOKEN_ENCRYPT_ALGORITHM = "HS256"
-SECRET_KEY = os.getenv("SECRET_KEY", "#DEFINE_ME_IN_ENV_YAML_FILE!")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable must be set in .env/env.yml")
 
 STRIPE_TEST_CLOCK = os.environ.get("STRIPE_TEST_CLOCK")
 SENDGRID_KEY = os.environ.get("SENDGRID_KEY")

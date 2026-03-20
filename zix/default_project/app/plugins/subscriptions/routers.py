@@ -102,6 +102,7 @@ def payment_success(
 
 @router.post(config.API_PATH + "/tasks/payment/status")
 def update_payment_status(
+    current_user: users_schemas.UserPrivate = Depends(users_crud.get_current_active_admin_user),
     db: Session = Depends(get_db),
     ):
     process_start = datetime.datetime.utcnow()

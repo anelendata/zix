@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette.responses import RedirectResponse
@@ -30,6 +31,22 @@ if config.USE_LINKEDIN_SSO:
 
 # --- SSO helpers ---
 
+# Only allow plain HTTP in development (when HTTP_DOMAIN starts with http://)
+_ALLOW_INSECURE_HTTP = config.HTTP_DOMAIN.startswith("http://")
+
+
+def _safe_next(next_url: str) -> str:
+    """Return next_url only if it is a relative path; fall back to '/' otherwise.
+
+    Prevents open-redirect attacks where an attacker supplies an absolute URL
+    like ?next=https://evil.com as the post-login redirect destination.
+    """
+    parsed = urlparse(next_url)
+    if parsed.scheme or parsed.netloc:
+        return "/"
+    return next_url or "/"
+
+
 def _require_provider(enabled: bool, name: str):
     if not enabled:
         raise HTTPException(status_code=404, detail=f"{name} SSO is not enabled")
@@ -40,7 +57,7 @@ def get_google_sso():
         client_id=config.GOOGLE_CLIENT_ID,
         client_secret=config.GOOGLE_CLIENT_SECRET,
         redirect_uri=config.HTTP_DOMAIN + "/callback/google",
-        allow_insecure_http=True,
+        allow_insecure_http=_ALLOW_INSECURE_HTTP,
     )
 
 
@@ -49,7 +66,7 @@ def get_github_sso():
         client_id=config.GITHUB_CLIENT_ID,
         client_secret=config.GITHUB_CLIENT_SECRET,
         redirect_uri=config.HTTP_DOMAIN + "/callback/github",
-        allow_insecure_http=True,
+        allow_insecure_http=_ALLOW_INSECURE_HTTP,
     )
 
 
@@ -58,7 +75,7 @@ def get_linkedin_sso():
         client_id=config.LINKEDIN_CLIENT_ID,
         client_secret=config.LINKEDIN_CLIENT_SECRET,
         redirect_uri=config.HTTP_DOMAIN + "/callback/linkedin",
-        allow_insecure_http=True,
+        allow_insecure_http=_ALLOW_INSECURE_HTTP,
     )
 
 
@@ -84,7 +101,8 @@ async def _process_sso_login(
         try:
             users_crud.claim_invitation(db, email, code)
         except Exception as e:
-            return RedirectResponse(url=f"/?message={str(e)} Please contact the inviter.")
+            logger.warning(f"Invitation claim failed for {email}: {e}")
+            return RedirectResponse(url="/?message=Invalid invitation code. Please contact the inviter.")
         del request.session["invitation_code"]
 
     user = users_crud.get_user_by_email(db, email)
@@ -133,7 +151,7 @@ async def _process_sso_login(
 
     request.session["access_token"] = access_token
     request.session["current_user_uid"] = str(user.uid)
-    next_ = request.session.pop("next", "/")
+    next_ = _safe_next(request.session.pop("next", "/"))
     return RedirectResponse(url=next_)
 
 
@@ -144,7 +162,7 @@ if config.USE_AUTH0:
     async def login(request: Request, next: str = "/"):
         auth0 = oauth.create_client("auth0")
         redirect_uri = request.url_for("callback")
-        request.session["next"] = next
+        request.session["next"] = _safe_next(next)
         return await auth0.authorize_redirect(request, str(redirect_uri))
 
     @router.get("/callback")
@@ -201,7 +219,7 @@ else:
     @router.get("/login")
     async def login(request: Request, next: str = "/"):
         """Redirect to the first enabled SSO provider."""
-        request.session["next"] = next
+        request.session["next"] = _safe_next(next)
         if config.USE_GOOGLE_SSO:
             return RedirectResponse(url="/login/google")
         if config.USE_GITHUB_SSO:
@@ -213,21 +231,21 @@ else:
     @router.get("/login/google")
     async def login_google(request: Request, next: str = "/"):
         _require_provider(config.USE_GOOGLE_SSO, "Google")
-        request.session["next"] = next
+        request.session["next"] = _safe_next(next)
         async with get_google_sso() as sso:
             return await sso.get_login_redirect()
 
     @router.get("/login/github")
     async def login_github(request: Request, next: str = "/"):
         _require_provider(config.USE_GITHUB_SSO, "GitHub")
-        request.session["next"] = next
+        request.session["next"] = _safe_next(next)
         async with get_github_sso() as sso:
             return await sso.get_login_redirect()
 
     @router.get("/login/linkedin")
     async def login_linkedin(request: Request, next: str = "/"):
         _require_provider(config.USE_LINKEDIN_SSO, "LinkedIn")
-        request.session["next"] = next
+        request.session["next"] = _safe_next(next)
         async with get_linkedin_sso() as sso:
             return await sso.get_login_redirect()
 
